@@ -42,7 +42,7 @@ import re
 import sys
 import time
 import getpass
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 
 import keyring
@@ -78,7 +78,7 @@ GESTIONA_BASE = "https://portal.once.es/GestionLaboralNomina/"
 
 # URLs reales descubiertas en el log de navegación (navegación directa,
 # sin pasar por los menús)
-URL_LIQUIDACION_DIARIA = GESTIONA_BASE + "Vendedores/IngresoACuenta/Liquidacion.aspx"
+URL_LIQUIDACION_DIARIA = GESTIONA_BASE + "Vendedores/IngresoACuenta/InformeLiquidacionDiaria.aspx"
 URL_CONTROL_PAQUETE_PREVISTO = GESTIONA_BASE + "JuegosONCE/ControlPaquete.aspx?tipoPaq=PREVISTO"
 URL_CONTROL_PAQUETE_A_RETIRAR = GESTIONA_BASE + "JuegosONCE/ControlPaquete.aspx?tipoPaq=A%20RETIRAR"
 URL_CONTROL_PAQUETE_RETIRADO = GESTIONA_BASE + "JuegosONCE/ControlPaquete.aspx?tipoPaq=RETIRADO"
@@ -225,6 +225,31 @@ def click_menu(page, selector):
     page.wait_for_load_state("networkidle")
 
 
+def esperar_postback(page, timeout=10000):
+    """Espera a que termine un postback ASP.NET tras cambiar un <select>.
+    Algunos UpdatePanel no disparan un networkidle claro, así que si el
+    timeout salta se usa una espera fija como fallback (mismo patrón que
+    seleccionar_todos_mas_reciente())."""
+    try:
+        page.wait_for_load_state("networkidle", timeout=timeout)
+    except Exception:
+        page.wait_for_timeout(2000)
+
+
+def click_menu_con_reintento(page, selector, intentos=2):
+    """Como click_menu, pero si el clic da timeout recarga Gestiona y
+    reintenta una vez: en descargar_nominas() el menú puede colgarse de
+    forma intermitente tras muchas descargas seguidas en la misma sesión."""
+    for intento in range(intentos):
+        try:
+            click_menu(page, selector)
+            return
+        except Exception:
+            if intento == intentos - 1:
+                raise
+            ir_a_gestiona(page)
+
+
 def navegar(page, url):
     page.goto(url)
     page.wait_for_load_state("networkidle")
@@ -236,9 +261,16 @@ def seleccionar_todos_mas_reciente(page):
     reciente a más antiguo, así que el índice 0 es el más reciente."""
     ids = page.eval_on_selector_all("select[id]", "els => els.map(e => e.id)")
     for id_ in ids:
-        opciones = opciones_select(page, f"#{id_}")
+        selector = f"#{id_}"
+        if not page.is_visible(selector) or not page.is_enabled(selector):
+            continue  # algunas páginas ocultan/deshabilitan selects condicionales tras un postback previo
+        opciones = opciones_select(page, selector)
         if opciones:
-            page.select_option(f"#{id_}", value=opciones[0]["value"])
+            page.select_option(selector, value=opciones[0]["value"])
+            try:
+                page.wait_for_load_state("networkidle", timeout=10000)
+            except Exception:
+                page.wait_for_timeout(2000)  # el postback ASP.NET no siempre dispara networkidle
 
 
 # Este script es de solo lectura: nunca debe enviar, confirmar ni guardar
@@ -270,44 +302,175 @@ def nombre_archivo_seguro(texto):
     return re.sub(r"[^A-Za-z0-9_-]+", "_", texto).strip("_")
 
 
-def extraer_tabla(page):
-    """Extrae la primera tabla visible de la página como lista de diccionarios
-    (cabecera de la tabla como claves). Genérico: no depende de columnas fijas
-    porque aún no se ha capturado el detalle interno de estas páginas."""
+def extraer_tabla(page, selector="table"):
+    """Extrae la tabla indicada por `selector` (por defecto la primera
+    tabla visible de la página) como lista de diccionarios (cabecera de
+    la tabla como claves). Genérico: no depende de columnas fijas.
+
+    Algunas páginas (control de retirada, control de almacén) anidan una
+    subtabla de detalle oculta dentro de una celda de cada fila (patrón
+    "resumen + detalle expandible" de ASP.NET GridView). querySelectorAll
+    es recursivo, así que hay que limitarse a las filas y celdas propias de
+    la tabla exterior — si no, las filas/celdas de la subtabla anidada se
+    mezclan con las de la fila resumen real y todo sale desalineado.
+
+    Otras páginas (informe de liquidación diaria) tienen varias tablas
+    independientes (una por concepto: liquidación, saldo acreedor, pago
+    de premios...) que solo se renderizan si tienen datos ese día — de
+    ahí que se pueda pedir una tabla concreta por su id en vez de
+    conformarse con "la primera"."""
     return page.evaluate(
-        """
-        () => {
-            const tabla = document.querySelector('table');
+        r"""
+        (selector) => {
+            const tabla = document.querySelector(selector);
             if (!tabla) return [];
-            const filas = Array.from(tabla.querySelectorAll('tr'));
+            const filas = Array.from(tabla.querySelectorAll(':scope > tbody > tr, :scope > tr'));
             if (filas.length === 0) return [];
-            const cabecera = Array.from(filas[0].querySelectorAll('th, td')).map(c => c.innerText.trim());
+
+            const textoLimpio = (celda) => {
+                const clon = celda.cloneNode(true);
+                clon.querySelectorAll('table').forEach(t => t.remove());
+                return clon.textContent.replace(/\s+/g, ' ').trim();
+            };
+            const celdasPropias = (fila) => Array.from(fila.children).filter(
+                el => el.tagName === 'TD' || el.tagName === 'TH'
+            );
+
+            const cabecera = celdasPropias(filas[0]).map(textoLimpio);
             return filas.slice(1).map(fila => {
-                const celdas = Array.from(fila.querySelectorAll('td')).map(c => c.innerText.trim());
+                const celdas = celdasPropias(fila).map(textoLimpio);
                 const obj = {};
                 cabecera.forEach((nombre, i) => { obj[nombre || `col_${i}`] = celdas[i] ?? null; });
                 return obj;
             });
         }
-        """
+        """,
+        selector,
     )
 
 
 # ── Descargas ─────────────────────────────────────────────────────
 
+# Calendario de turnos de Juan Antonio (agencia 576 Getafe):
+# - Hasta el 12/07/2026 inclusive: tipo 4, trabaja miércoles a domingo.
+# - Desde el 13/07/2026: tipo 1, trabaja lunes a viernes.
+CAMBIO_TURNO_LIQUIDACION = datetime(2026, 7, 13).date()
+
+
+def _hay_liquidacion_ese_dia(fecha):
+    """Decide si toca ejecutar la descarga de liquidación diaria para
+    `fecha` (la fecha consultada, no la de hoy), según el turno vigente
+    ese día:
+
+    - Tipo 4 (antes del cambio de turno, miércoles a domingo): se
+      ejecuta TODOS los días de la semana. Lunes y martes no son
+      jornada laboral pero se consulta igual por si hay cobros de
+      libros o saldo acreedor pendiente (es normal que salga 0,00€).
+    - Tipo 1 (desde el cambio de turno, lunes a viernes): se ejecuta de
+      lunes a viernes; sábado y domingo se omite directamente, no hay
+      jornada de ningún tipo esos días."""
+    if fecha < CAMBIO_TURNO_LIQUIDACION:
+        return True
+    return fecha.weekday() not in (5, 6)  # 5 = sábado, 6 = domingo
+
+
+def _importe_a_float(texto):
+    """Convierte un importe en formato español ("403,10€", "0,00€") a
+    float. Cualquier texto no reconocible se trata como 0."""
+    if not texto:
+        return 0.0
+    limpio = texto.replace("€", "").strip().replace(".", "").replace(",", ".")
+    try:
+        return float(limpio)
+    except ValueError:
+        return 0.0
+
+
 def descargar_liquidacion_diaria(page):
-    """Vendedores/IngresoACuenta/Liquidacion.aspx (navegación directa por URL).
-    Extrae la tabla de la página a JSON en LIQUIDACIONES_PATH."""
+    """Vendedores/IngresoACuenta/InformeLiquidacionDiaria.aspx (navegación
+    directa por URL, selectores confirmados con grabar_portal.py el
+    06/07/2026). Pulsa "Enviar" (botón de consulta de este informe, no
+    de envío de datos — distinto del "Enviar" bloqueado en
+    BOTONES_PROHIBIDOS, que es para formularios de escritura como
+    "Ingresos a cuenta producto", nunca tocado aquí), extrae la tabla a
+    JSON y genera también un PDF de la página.
+
+    IMPORTANTE: este informe NO permite consultar un día concreto
+    pasado. Se comprobó experimentalmente (probando varias fechas muy
+    distintas en el datepicker) que #datepickerFechaHasta no tiene
+    ningún efecto sobre el resultado: la página siempre muestra el
+    saldo pendiente de la PRÓXIMA liquidación tal como está hoy (su
+    propio caption lo dice: "DESGLOSE PRÓXIMA LIQUIDACIÓN..."), no el
+    balance de un día histórico. Por eso ya no se rellena el datepicker
+    — solo se pulsa "Enviar" para forzar una consulta fresca del estado
+    actual.
+
+    Antes de nada comprueba con _hay_liquidacion_ese_dia() si AYER tenía
+    jornada según el turno vigente (se usa ayer, el último día laborable
+    completo, como referencia para decidir si merece la pena consultar);
+    si no la tenía (solo posible en el turno de lunes a viernes, en
+    sábado o domingo) se omite la consulta al portal por completo.
+
+    El botón "Exportar a PDF" del propio portal (id btExportar) no sirve:
+    inspeccionando InformeLiquidacionDiaria.js se confirmó que su
+    manejador de clic (clickExportar()) está comentado en el JS del
+    portal — no genera ningún PDF ni descarga, solo hace un postback
+    vacío. Por eso el PDF se genera con page.pdf() (mismo método que
+    descargar_nominas()), no pulsando ese botón."""
+    hoy_dt = datetime.now().date()
     hoy = datetime.now().strftime("%Y%m%d")
+    fecha_ayer = hoy_dt - timedelta(days=1)
     LIQUIDACIONES_PATH.mkdir(parents=True, exist_ok=True)
+    destino = LIQUIDACIONES_PATH / f"liquidacion_diaria_{hoy}.json"
+
+    if not _hay_liquidacion_ese_dia(fecha_ayer):
+        datos = {
+            "fecha_consulta": hoy_dt.strftime("%d/%m/%Y"),
+            "ejecutado": False,
+            "mensaje": "No se ejecuta liquidación (sábado/domingo, turno de lunes a viernes)",
+        }
+        with open(destino, "w") as f:
+            json.dump(datos, f, indent=2, ensure_ascii=False)
+        print(f"ℹ️  Liquidación diaria omitida ({hoy_dt.strftime('%d/%m/%Y')}): fin de semana, turno de lunes a viernes")
+        return destino
 
     navegar(page, URL_LIQUIDACION_DIARIA)
 
-    datos = extraer_tabla(page)
-    destino = LIQUIDACIONES_PATH / f"liquidacion_diaria_{hoy}.json"
+    page.get_by_role("button", name="Enviar").click()
+    page.wait_for_load_state("networkidle")
+
+    tabla_liquidacion = extraer_tabla(page, "#ctl00_ContentPlaceHolder1_gvLiquidacionDiaria")
+    tabla_saldo = extraer_tabla(page, "#ctl00_ContentPlaceHolder1_gvSaldoAcreedorDeudor")
+
+    importe_texto = tabla_liquidacion[0]["IMPORTE"] if tabla_liquidacion else "0,00€"
+    saldo_texto = tabla_saldo[0]["IMPORTE"] if tabla_saldo else "0,00€"
+    importe = _importe_a_float(importe_texto)
+    saldo = _importe_a_float(saldo_texto)
+
+    if importe > 0:
+        mensaje = f"Importe a liquidar: {importe_texto}"
+    elif saldo > 0:
+        mensaje = f"Saldo acreedor aplicado: {saldo_texto}"
+    else:
+        mensaje = "Sin liquidación hoy (día libre)"
+
+    datos = {
+        "fecha_consulta": hoy_dt.strftime("%d/%m/%Y"),
+        "ejecutado": True,
+        "importe": importe_texto,
+        "saldo_acreedor": saldo_texto,
+        "mensaje": mensaje,
+        "tabla_liquidacion": tabla_liquidacion,
+        "tabla_saldo_acreedor": tabla_saldo,
+    }
     with open(destino, "w") as f:
         json.dump(datos, f, indent=2, ensure_ascii=False)
-    print(f"✅ Liquidación diaria guardada: {destino.name} ({len(datos)} filas)")
+    print(f"✅ Liquidación diaria guardada: {destino.name} — {mensaje}")
+
+    destino_pdf = LIQUIDACIONES_PATH / f"liquidacion_diaria_{hoy}.pdf"
+    page.pdf(path=str(destino_pdf))
+    print(f"✅ Liquidación diaria (PDF) guardada: {destino_pdf.name}")
+
     return destino
 
 
@@ -384,7 +547,9 @@ def descargar_comisiones(page):
     hoy = datetime.now().strftime("%Y%m%d")
     COMISIONES_PATH.mkdir(parents=True, exist_ok=True)
 
-    navegar(page, URL_COMISIONES)
+    ir_a_gestiona(page)
+    click_menu(page, MENU_OFICINA_VIRTUAL)
+    click_menu(page, MENU_COMISIONES)
     seleccionar_todos_mas_reciente(page)
     page.click(BOTON_CONSULTAR_COMISIONES)
     page.wait_for_load_state("networkidle")
@@ -544,28 +709,36 @@ def descargar_nominas(page):
     destinos = []
 
     ir_a_gestiona(page)
-    click_menu(page, MENU_NOMINA)
+    click_menu_con_reintento(page, MENU_NOMINA)
     anios = [o["value"] for o in opciones_select(page, SELECT_ANIO)]
 
     for anio in anios:
-        click_menu(page, MENU_NOMINA)
-        page.select_option(SELECT_ANIO, value=anio)
-        page.wait_for_load_state("networkidle")  # el mes se recarga tras elegir año
-        meses = [o["value"] for o in opciones_select(page, SELECT_MES)]
+        try:
+            click_menu_con_reintento(page, MENU_NOMINA)
+            page.select_option(SELECT_ANIO, value=anio)
+            esperar_postback(page)  # el mes se recarga tras elegir año
+            meses = [o["value"] for o in opciones_select(page, SELECT_MES)]
+        except Exception as e:
+            print(f"⚠️  Error seleccionando año {anio}: {e}")
+            continue
 
         for mes in meses:
-            click_menu(page, MENU_NOMINA)
-            page.select_option(SELECT_ANIO, value=anio)
-            page.wait_for_load_state("networkidle")
-            page.select_option(SELECT_MES, value=mes)
-            page.wait_for_load_state("networkidle")  # el período se recarga tras elegir año/mes
-            periodos = [o["value"] for o in opciones_select(page, SELECT_PERIODO)]
+            try:
+                click_menu_con_reintento(page, MENU_NOMINA)
+                page.select_option(SELECT_ANIO, value=anio)
+                esperar_postback(page)
+                page.select_option(SELECT_MES, value=mes)
+                page.wait_for_load_state("networkidle")  # el período se recarga tras elegir año/mes
+                periodos = [o["value"] for o in opciones_select(page, SELECT_PERIODO)]
+            except Exception as e:
+                print(f"⚠️  Error seleccionando mes {anio}/{mes}: {e}")
+                continue
 
             for periodo in periodos:
                 try:
-                    click_menu(page, MENU_NOMINA)
+                    click_menu_con_reintento(page, MENU_NOMINA)
                     page.select_option(SELECT_ANIO, value=anio)
-                    page.wait_for_load_state("networkidle")
+                    esperar_postback(page)
                     page.select_option(SELECT_MES, value=mes)
                     page.wait_for_load_state("networkidle")
                     page.select_option(SELECT_PERIODO, value=periodo)
@@ -624,7 +797,7 @@ def ejecutar_descarga_diaria():
 
     resultados = {}
     with sync_playwright() as p:
-        navegador = p.chromium.launch(headless=False)  # TODO: volver a True cuando el login esté depurado
+        navegador = p.chromium.launch(headless=False)  # el portal ONCE bloquea/no renderiza el login en modo headless
         contexto = navegador.new_context(accept_downloads=True)
         page = contexto.new_page()
 
@@ -667,7 +840,7 @@ def ejecutar_descarga_mensual():
     clave_segura = obtener_clave_segura()
 
     with sync_playwright() as p:
-        navegador = p.chromium.launch(headless=False)  # TODO: volver a True cuando el login esté depurado
+        navegador = p.chromium.launch(headless=False)  # el portal ONCE bloquea/no renderiza el login en modo headless
         contexto = navegador.new_context(accept_downloads=True)
         page = contexto.new_page()
 

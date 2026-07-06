@@ -1,0 +1,956 @@
+<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="es" lang="es"><head><title>
+	Control de almacén de lotería instantánea - PortalONCE
+</title><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.6, minimum-scale=0.6666"><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="keywords" content="Portal del empleado, Portal ONCE, Portal del trabajador, Gestión laboral y de nómina, Gestiona" lang="es"><meta name="copyright" content="Organización Nacional de Ciegos Españoles" lang="es"><meta name="Author" content="ONCE" lang="es"><meta http-equiv="CACHE-CONTROL" content="NO-CACHE"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="expires" content="-1"><link href="../Estilos/fontawesome-free-5.15.3-web-all.min.css" rel="stylesheet"><link rel="stylesheet" href="../Estilos/bootstrap.min.css" media="screen"><link type="text/css" rel="stylesheet" href="../JScript/jquery-ui.css"><link id="ctl00_CambioCSS" type="text/css" rel="Stylesheet" href="../Estilos/Estilos.css"><link rel="stylesheet" type="text/css" href="../Estilos/stylesCalendar.css"><style type="text/css" media="screen">@import url(https://fast.fonts.net/cssapi/b34e234a-09ec-49bd-bbf1-fed58b87fb29.css);</style>
+    <script>
+        function ReplaceDialogTitleSPANForH1(dialogObject) {
+            var w = $(dialogObject).dialog("widget");
+            var t = $(".ui-dialog-title", w);
+            var h1 = $("<h1>", {
+                id: t.attr("id"),
+                class: t.attr("class")
+            }).html(t.text());
+            t.replaceWith(h1);
+        }
+    </script>
+<script type="text/javascript" src="../JScript/jquery-3.7.0.min.js"></script><script type="text/javascript" src="../JScript/menu/JVersion.js"></script><script type="text/javascript" src="../JScript/change.js"></script><script type="text/javascript" src="../JScript/selectivizr.js"></script><link rel="stylesheet" type="text/css" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css"></head>
+<body id="ctl00_bCorp">
+ <div id="container" aria-hidden="false" class="anchoMinimo">  
+   <div class="">  
+     <div class="fondo">
+        <div class="Centro">            
+              <div>
+                
+
+<div class="Cabecera AltoMinMax">
+    <div id="Enlaces">
+        <div class="EnlacesCabecera">
+            <span id="ctl00_WcCabecera1_enlaceContenido" class="Desc1"><a href="#SaltoCont" accesskey="1">Salto a contenido</a></span>
+            <span id="ctl00_WcCabecera1_spBarraSeparacion"> | </span><span id="ctl00_WcCabecera1_dvSaltarNav" class="Desc1"><a href="#h2Menu" accesskey="2">Salto a navegación</a></span>  
+             
+             
+            <div class="Desconexion" id="Desconexion">
+                <div id="ctl00_WcCabecera1_dvEmpleado" class="user">JUAN ANTONIO PANADERO JIMENEZ</div>                
+                
+                <a href="../Seguridad/Salir.aspx" id="ctl00_WcCabecera1_idSalir" class="logout" aria-label="Salir de Gestiona (cierra la sesión)" accesskey="S" title="Salir de Gestiona (cierra la sesión)"><span>Salir</span></a>
+
+               
+            </div>
+        </div>
+        
+        <!-- LogoPortal -->
+       <div class="contCabecera">
+            <div class="PortalEmple">
+                Gestión Laboral y de Nómina</div>
+            <div class="PortalE">
+                <a href="https://portal.once.es" id="ctl00_WcCabecera1_hrEnlace" title="Portal del Empleado - Página de Inicio" accesskey="3">
+                    <img src="../Imagenes/logotipo.png" id="ctl00_WcCabecera1_imgLogo" alt="Portal del Empleado - Página de Inicio" class="imgLogoPrincipal"></a>
+            </div>
+                      
+            
+<div class="iconos">   
+        
+         
+         <div id="ctl00_WcCabecera1_WcEnlacesCabecera1_LinkCabecerDer" class="EnlacesCabeceraDer AlineaDer">
+
+         <!-- Enlaces derecha -->
+         <div id="ctl00_WcCabecera1_WcEnlacesCabecera1_dvBotonesCabecera" class="contentBotonesCab">
+           <h2 class="element-invisible">Herramientas</h2> 
+       <!--   <ul class="BotonesCabecera">-->
+          <!--     <li id="ctl00_WcCabecera1_WcEnlacesCabecera1_liAyuda">-->
+                   <a href="../Ayuda/Ayuda.aspx" id="ctl00_WcCabecera1_WcEnlacesCabecera1_dvAyuda" title="Ayuda del Portal del Empleado de la ONCE - Gestión laboral y de nóminas" class="icono tamanioImgIcono"><img src="../Imagenes/help.gif" id="ctl00_WcCabecera1_WcEnlacesCabecera1_imgAyuda" alt="Ayuda del Portal del Empleado de la ONCE - Gestión laboral y de nóminas" class="icono tamanioImgIcono"></a>
+        <!--    </ul>-->
+           
+          </div>
+         </div>
+</div>
+
+           
+        </div>
+
+        <div class="clearBoth">
+        </div>
+        
+        <div class="BotonesCabecera">
+          
+        </div>
+
+    </div>
+</div>
+                
+                    <div id="dvContenidoMaster" class="Contenido">
+                      <form method="post" action="./Almacen.aspx" id="aspnetForm">
+<div>
+<input type="hidden" name="__EVENTTARGET" id="__EVENTTARGET" value="">
+<input type="hidden" name="__EVENTARGUMENT" id="__EVENTARGUMENT" value="">
+<input type="hidden" name="__VIEWSTATE" id="__VIEWSTATE" value="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">
+</div>
+
+<script type="text/javascript">
+//<![CDATA[
+var theForm = document.forms['aspnetForm'];
+if (!theForm) {
+    theForm = document.aspnetForm;
+}
+function __doPostBack(eventTarget, eventArgument) {
+    if (!theForm.onsubmit || (theForm.onsubmit() != false)) {
+        theForm.__EVENTTARGET.value = eventTarget;
+        theForm.__EVENTARGUMENT.value = eventArgument;
+        theForm.submit();
+    }
+}
+//]]>
+</script>
+
+
+<script src="/GestionLaboralNomina/WebResource.axd?d=lMnTp8UjyU-Qj8MnB-69Sy-OZ8ofAeS1qRBs9a4CShSEjr0Kcl_2GTq7SG9X2jMIsZUdxopqZtVZxK5m7nC5O4aKQv01&amp;t=638942282805310136" type="text/javascript"></script>
+
+
+<script src="/GestionLaboralNomina/ScriptResource.axd?d=0Y2lJlJpCijQSc4g6tSjbElHf2Gh9lnG7f3GNluoqDi3JO0Fv-Ni9L3t7ll0GZDaIM9vejEUNrCsNV2FDGF7kc5BoPIb-iJNaYApnhhfysZcl-bSejRseAW2v07GHv_SZoFvWDv0hVtYWQExTI6PMiIZFKfEv0qBJ98feJ2Ybe-5vN7M0&amp;t=32e5dfca" type="text/javascript"></script>
+<script type="text/javascript">
+//<![CDATA[
+if (typeof(Sys) === 'undefined') throw new Error('ASP.NET Ajax client-side framework failed to load.');
+//]]>
+</script>
+
+<script src="/GestionLaboralNomina/ScriptResource.axd?d=-1ck11LPWWevuOjIXhDhV4LTQMjqESYWx5tIbK4chM8KtdzRUDlGwqRckppFy8OOkzAKA_EEzY8H1s1OYUVmRGGwUUCuoF2ctoNZKZy9RhPWX543D3q482RiEmaatVpNru0LGXrPOkzEmOwR2RJS5GgrVIfxf-JGeB7VSwwyIkmZydT4i7V_rjw1g59wIt-1zGgipw2&amp;t=32e5dfca" type="text/javascript"></script>
+<div>
+
+	<input type="hidden" name="__VIEWSTATEGENERATOR" id="__VIEWSTATEGENERATOR" value="10F3BEAD">
+	<input type="hidden" name="__VIEWSTATEENCRYPTED" id="__VIEWSTATEENCRYPTED" value="">
+	<input type="hidden" name="__EVENTVALIDATION" id="__EVENTVALIDATION" value="JWiObeKfgD4RBkSr8Y8tFrZMaWfOzEenpa/fV7Qydh+SpCv4lHgCEb1Zk7g/LrNIrSHnhkULVVySPAP1Rt5SX5IUb/dTlS3LbOKB80cvQ2cuqq9UwGbLaOb0aCLu7WzTJH2MeQ==">
+</div>
+                          <div id="ctl00_desktopMenu" class="menu-wrap">
+                               <h2 id="h2Menu" class="element-invisible">Menú principal</h2>
+                               <div id="menu">
+<ul id="menulista" aria-label="Menú principal" class="ui-menu ui-widget ui-widget-content">
+	<li class="ui-menu-item" id="li_1_Datos-personales">
+		<a id="lnkMenu_1_Datos-personales" href="#" aria-expanded="false" aria-haspopup="menu">Datos personales <i id="i_Datos-personales" class="fa fa-chevron-down" aria-hidden="true"></i></a>
+
+		<ul class="ui-menu" id="Submenu_2_Datos-personales" style="display: none" aria-label="Submenú Datos personales">
+			<li class="ui-menu-item">
+				<a id="lnkMenu_2_Datos-personales" href="https://portal.once.es/GestionLaboralNomina/Datos Personales/InformacionPersonal.aspx">Acerca de Datos personales</a></li>
+			<li class="ui-menu-item" id="li_2_Información-personal">
+				<a id="lnkMenu_2_Información-personal" href="https://portal.once.es/GestionLaboralNomina/Datos Personales/DatosPersonales.aspx">Información personal</a>
+			</li>
+			<li class="ui-menu-item" id="li_2_Clasificación-profesional">
+				<a id="lnkMenu_2_Clasificación-profesional" href="https://portal.once.es/GestionLaboralNomina/Datos Personales/ClasificacionProfesional.aspx">Clasificación profesional</a>
+			</li>
+			<li class="ui-menu-item" id="li_2_Datos-bancarios">
+				<a id="lnkMenu_2_Datos-bancarios" href="https://portal.once.es/GestionLaboralNomina/Datos Personales/DatosBancarios.aspx">Datos bancarios</a>
+			</li>
+			<li class="ui-menu-item" id="li_2_Datos-fiscales">
+				<a id="lnkMenu_2_Datos-fiscales" href="https://portal.once.es/GestionLaboralNomina/Datos Personales/DatosFiscales.aspx">Datos fiscales</a>
+			</li>
+			<li class="ui-menu-item" id="li_2_Historial-laboral">
+				<a id="lnkMenu_2_Historial-laboral" href="https://portal.once.es/GestionLaboralNomina/Datos Personales/HistorialLaboral.aspx">Historial laboral</a>
+			</li>
+			<li class="ui-menu-item" id="li_2_Historial-formativo-ONCE">
+				<a id="lnkMenu_2_Historial-formativo-ONCE" href="https://portal.once.es/GestionLaboralNomina/Datos Personales/HistorialFormativo.aspx">Historial formativo ONCE</a>
+			</li>
+		</ul>
+	</li>
+	<li class="ui-menu-item" id="li_1_Nómina">
+		<a id="lnkMenu_1_Nómina" href="https://portal.once.es/GestionLaboralNomina/Nominas/SeleccionRecibo.aspx">Nómina</a>
+	</li>
+	<li class="ui-menu-item" id="li_1_Trámites">
+		<a id="lnkMenu_1_Trámites" href="#" aria-expanded="false" aria-haspopup="menu">Trámites <i id="i_Trámites" class="fa fa-chevron-down" aria-hidden="true"></i></a>
+
+		<ul class="ui-menu" id="Submenu_2_Trámites" style="display: none" aria-label="Submenú Trámites">
+			<li class="ui-menu-item">
+				<a id="lnkMenu_2_Trámites" href="https://portal.once.es/GestionLaboralNomina/Tramites/Tramites.aspx">Acerca de Trámites</a></li>
+			<li class="ui-menu-item" id="li_2_Solicitud-de-modificación-de-datos-identificativos-y-de-contacto">
+				<a id="lnkMenu_2_Solicitud-de-modificación-de-datos-identificativos-y-de-contacto" href="https://portal.once.es/GestionLaboralNomina/Tramites/modificardatospersonales.aspx">Solicitud de modificación de datos identificativos y de contacto</a>
+			</li>
+			<li class="ui-menu-item" id="li_2_Solicitud-de-modificación-de-datos-bancarios-de-nómina">
+				<a id="lnkMenu_2_Solicitud-de-modificación-de-datos-bancarios-de-nómina" href="https://portal.once.es/GestionLaboralNomina/Tramites/modificardatosbancarios.aspx">Solicitud de modificación de datos bancarios de nómina</a>
+			</li>
+			<li class="ui-menu-item" id="li_2_Solicitud-de-variación-de-porcentaje-IRPF">
+				<a id="lnkMenu_2_Solicitud-de-variación-de-porcentaje-IRPF" href="https://portal.once.es/GestionLaboralNomina/Tramites/SolicitudCambioIRPF.aspx">Solicitud de variación de porcentaje IRPF</a>
+			</li>
+			<li class="ui-menu-item" id="li_2_Solicitud-de-anticipo-de-nómina">
+				<a id="lnkMenu_2_Solicitud-de-anticipo-de-nómina" href="https://portal.once.es/GestionLaboralNomina/Tramites/solicitudanticiponomina.aspx">Solicitud de anticipo de nómina</a>
+			</li>
+			<li class="ui-menu-item" id="li_2_Solicitud-de-anulación-de-asuntos-particulares">
+				<a id="lnkMenu_2_Solicitud-de-anulación-de-asuntos-particulares" href="https://portal.once.es/GestionLaboralNomina/Tramites/SolicitudAnulacionAP.aspx">Solicitud de anulación de asuntos particulares</a>
+			</li>
+			<li class="ui-menu-item" id="li_2_Solicitud-de-asuntos-particulares">
+				<a id="lnkMenu_2_Solicitud-de-asuntos-particulares" href="https://portal.once.es/GestionLaboralNomina/Tramites/solicitudvacaciones.aspx">Solicitud de asuntos particulares</a>
+			</li>
+			<li class="ui-menu-item" id="li_2_Solicitud-de-vacaciones">
+				<a id="lnkMenu_2_Solicitud-de-vacaciones" href="https://portal.once.es/GestionLaboralNomina/Tramites/VacacionesVendedor.aspx">Solicitud de vacaciones</a>
+			</li>
+			<li class="ui-menu-item" id="li_2_Permiso-retribuido-especial-antigüedad-(11/22-años)">
+				<a id="lnkMenu_2_Permiso-retribuido-especial-antigüedad-(11/22-años)" href="https://portal.once.es/GestionLaboralNomina/Tramites/PermisoAntiguedad.aspx">Permiso retribuido especial antigüedad (11/22 años)</a>
+			</li>
+			<li class="ui-menu-item" id="li_2_Solicitud-de-permisos,-excedencias-y-licencias">
+				<a id="lnkMenu_2_Solicitud-de-permisos,-excedencias-y-licencias" href="https://portal.once.es/GestionLaboralNomina/Tramites/solicitudExcedencia.aspx">Solicitud de permisos, excedencias y licencias</a>
+			</li>
+			<li class="ui-menu-item" id="li_2_Notificaciones-de-solicitudes">
+				<a id="lnkMenu_2_Notificaciones-de-solicitudes" href="https://portal.once.es/GestionLaboralNomina/Tramites/NotificacionSolicitudes.aspx">Notificaciones de solicitudes</a>
+			</li>
+		</ul>
+	</li>
+	<li class="ui-menu-item" id="li_1_Consultas">
+		<a id="lnkMenu_1_Consultas" href="#" aria-expanded="false" aria-haspopup="menu">Consultas <i id="i_Consultas" class="fa fa-chevron-down" aria-hidden="true"></i></a>
+
+		<ul class="ui-menu" id="Submenu_2_Consultas" style="display: none" aria-label="Submenú Consultas">
+			<li class="ui-menu-item">
+				<a id="lnkMenu_2_Consultas" href="https://portal.once.es/GestionLaboralNomina/Consultas/Consultas.aspx">Acerca de Consultas</a></li>
+			<li class="ui-menu-item" id="li_2_Consulta-de-incidencias">
+				<a id="lnkMenu_2_Consulta-de-incidencias" href="https://portal.once.es/GestionLaboralNomina/Consultas/ResumenIncidencias.aspx">Consulta de incidencias</a>
+			</li>
+			<li class="ui-menu-item" id="li_2_Consulta-de-registro-de-jornada">
+				<a id="lnkMenu_2_Consulta-de-registro-de-jornada" href="https://portal.once.es/GestionLaboralNomina/Consultas/ConsultaMarcajes.aspx">Consulta de registro de jornada</a>
+			</li>
+			<li class="ui-menu-item" id="li_2_Consulta-de-solicitudes">
+				<a id="lnkMenu_2_Consulta-de-solicitudes" href="https://portal.once.es/GestionLaboralNomina/Consultas/consultasolicitudes.aspx">Consulta de solicitudes</a>
+			</li>
+			<li class="ui-menu-item" id="li_2_Consulta-del-certificado-de-haberes-y-retenciones-(IRPF)">
+				<a id="lnkMenu_2_Consulta-del-certificado-de-haberes-y-retenciones-(IRPF)" href="https://portal.once.es/GestionLaboralNomina/Nominas/SeleccionIRPF.aspx">Consulta del certificado de haberes y retenciones (IRPF)</a>
+			</li>
+			<li class="ui-menu-item" id="li_2_Consulta-del-Modelo-145-Comunicación-de-datos-al-pagador">
+				<a id="lnkMenu_2_Consulta-del-Modelo-145-Comunicación-de-datos-al-pagador" href="https://portal.once.es/GestionLaboralNomina/Consultas/Modelo145.aspx">Consulta del Modelo 145 Comunicación de datos al pagador</a>
+			</li>
+		</ul>
+	</li>
+	<li class="ui-menu-item" id="li_1_Currículum">
+		<a id="lnkMenu_1_Currículum" href="#" aria-expanded="false" aria-haspopup="menu">Currículum <i id="i_Currículum" class="fa fa-chevron-down" aria-hidden="true"></i></a>
+
+		<ul class="ui-menu" id="Submenu_2_Currículum" style="display: none" aria-label="Submenú Currículum">
+			<li class="ui-menu-item">
+				<a id="lnkMenu_2_Currículum" href="https://portal.once.es/GestionLaboralNomina/Curriculum/gestioncurriculum.aspx">Acerca de Currículum</a></li>
+			<li class="ui-menu-item" id="li_2_Currículum-en-PDF">
+				<a id="lnkMenu_2_Currículum-en-PDF" href="https://portal.once.es/GestionLaboralNomina/Curriculum/consultacurriculum.aspx">Currículum en PDF</a>
+			</li>
+			<li class="ui-menu-item" id="li_2_Editar-currículum">
+				<a id="lnkMenu_2_Editar-currículum" href="https://portal.once.es/GestionLaboralNomina/Curriculum/modificarcurriculum.aspx">Editar currículum</a>
+			</li>
+		</ul>
+	</li>
+	<li class="ui-menu-item" id="li_1_Oficina-virtual-vendedor">
+		<a id="lnkMenu_1_Oficina-virtual-vendedor" href="#" aria-expanded="false" aria-haspopup="menu">Oficina virtual vendedor <i id="i_Oficina-virtual-vendedor" class="fa fa-chevron-down" aria-hidden="true"></i></a>
+
+		<ul class="ui-menu" id="Submenu_2_Oficina-virtual-vendedor" style="display: none" aria-label="Submenú Oficina virtual vendedor">
+			<li class="ui-menu-item">
+				<a id="lnkMenu_2_Oficina-virtual-vendedor" href="https://portal.once.es/GestionLaboralNomina/JuegosONCE/Control.aspx">Acerca de Oficina virtual vendedor</a></li>
+			<li class="ui-menu-item" id="li_2_Control-de-Retirada">
+				<a id="lnkMenu_2_Control-de-Retirada" href="https://portal.once.es/GestionLaboralNomina/JuegosONCE/ControlPaquete.aspx">Control de Retirada</a>
+			</li>
+			<li class="ui-menu-item" id="li_2_Control-de-almacén-de-lotería-instantánea">
+				<a id="lnkMenu_2_Control-de-almacén-de-lotería-instantánea" href="https://portal.once.es/GestionLaboralNomina/JuegosONCE/Almacen.aspx">Control de almacén de lotería instantánea</a>
+			</li>
+			<li class="ui-menu-item" id="li_2_Consulta-de-premios-repartidos">
+				<a id="lnkMenu_2_Consulta-de-premios-repartidos" href="https://portal.once.es/GestionLaboralNomina/JuegosONCE/Premios.aspx">Consulta de premios repartidos</a>
+			</li>
+			<li class="ui-menu-item" id="li_2_Comisiones">
+				<a id="lnkMenu_2_Comisiones" href="https://portal.once.es/GestionLaboralNomina/Vendedores/comisiones.aspx">Comisiones</a>
+			</li>
+			<li class="ui-menu-item" id="li_2_Simulación-de-comisiones">
+				<a id="lnkMenu_2_Simulación-de-comisiones" href="https://portal.once.es/GestionLaboralNomina/Vendedores/ConsultaSimulacion.aspx">Simulación de comisiones</a>
+			</li>
+			<li class="ui-menu-item" id="li_2_Estadísticas-de-venta">
+				<a id="lnkMenu_2_Estadísticas-de-venta" href="https://portal.once.es/GestionLaboralNomina/Vendedores/estadisticasventa.aspx">Estadísticas de venta</a>
+			</li>
+			<li class="ui-menu-item" id="li_2_Liquidación">
+				<a id="lnkMenu_2_Liquidación" href="#" aria-expanded="false" aria-haspopup="menu">Liquidación <i id="i_Liquidación" class="fa fa-chevron-down" aria-hidden="true"></i></a>
+
+			<ul class="ui-menu" id="Submenu_3_Liquidación" style="display: none" aria-label="Submenú Liquidación">
+				<li class="ui-menu-item">
+					<a id="lnkMenu_3_Liquidación" href="https://portal.once.es/GestionLaboralNomina/Vendedores/IngresoACuenta/Liquidacion.aspx">Acerca de Liquidación</a></li>
+				<li class="ui-menu-item" id="li_3_Ingresos-a-cuenta-producto">
+					<a id="lnkMenu_3_Ingresos-a-cuenta-producto" href="https://portal.once.es/GestionLaboralNomina/Vendedores/IngresoACuenta/IngresosCuentaProducto.aspx">Ingresos a cuenta producto</a>
+				</li>
+				<li class="ui-menu-item" id="li_3_Informes-ingreso-a-cuenta-producto">
+					<a id="lnkMenu_3_Informes-ingreso-a-cuenta-producto" href="#" aria-expanded="false" aria-haspopup="menu">Informes ingreso a cuenta producto <i id="i_Informes-ingreso-a-cuenta-producto" class="fa fa-chevron-down" aria-hidden="true"></i></a>
+
+				<ul class="ui-menu" id="Submenu_4_Informes-ingreso-a-cuenta-producto" style="display: none" aria-label="Submenú Informes ingreso a cuenta producto">
+					<li class="ui-menu-item">
+						<a id="lnkMenu_4_Informes-ingreso-a-cuenta-producto" href="https://portal.once.es/GestionLaboralNomina/Vendedores/IngresoACuenta/InformesLiquidacion/Informes.aspx">Acerca de Informes ingreso a cuenta producto</a></li>
+					<li class="ui-menu-item" id="li_4_Informe-de-ingresos-por-fecha">
+						<a id="lnkMenu_4_Informe-de-ingresos-por-fecha" href="https://portal.once.es/GestionLaboralNomina/Vendedores/IngresoACuenta/InformesLiquidacion/InformeIngresosPorFechas.aspx">Informe de ingresos por fecha</a>
+					</li>
+					<li class="ui-menu-item" id="li_4_Informe-de-ingresos-cuenta-producto">
+						<a id="lnkMenu_4_Informe-de-ingresos-cuenta-producto" href="https://portal.once.es/GestionLaboralNomina/Vendedores/IngresoACuenta/InformesLiquidacion/InformeIngresosPorProducto.aspx">Informe de ingresos cuenta producto</a>
+					</li>
+				</ul>
+				</li>
+				<li class="ui-menu-item" id="li_3_Informe-liquidación-diaria">
+					<a id="lnkMenu_3_Informe-liquidación-diaria" href="https://portal.once.es/GestionLaboralNomina/Vendedores/IngresoACuenta/InformeLiquidacionDiaria.aspx">Informe liquidación diaria</a>
+				</li>
+			</ul>
+			</li>
+			<li class="ui-menu-item" id="li_2_Consulta-de-asignación-de-punto-de-venta">
+				<a id="lnkMenu_2_Consulta-de-asignación-de-punto-de-venta" href="https://portal.once.es/GestionLaboralNomina/Vendedores/AnexoVendedor.aspx">Consulta de asignación de punto de venta</a>
+			</li>
+			<li class="ui-menu-item" id="li_2_Publicación-de-plazas-por-municipios">
+				<a id="lnkMenu_2_Publicación-de-plazas-por-municipios" href="https://portal.once.es/GestionLaboralNomina/Vendedores/PublicacionPlazas.aspx">Publicación de plazas por municipios</a>
+			</li>
+		</ul>
+	</li>
+	<li class="ui-menu-item" id="li_1_Otros-documentos">
+		<a id="lnkMenu_1_Otros-documentos" href="https://portal.once.es/GestionLaboralNomina/OtrosDocumentos/OtrosDocumentos.aspx">Otros documentos</a>
+	</li>
+	<li class="ui-menu-item" id="li_1_Clave-de-acceso">
+		<a id="lnkMenu_1_Clave-de-acceso" href="#" aria-expanded="false" aria-haspopup="menu">Clave de acceso <i id="i_Clave-de-acceso" class="fa fa-chevron-down" aria-hidden="true"></i></a>
+
+		<ul class="ui-menu" id="Submenu_2_Clave-de-acceso" style="display: none" aria-label="Submenú Clave de acceso">
+			<li class="ui-menu-item">
+				<a id="lnkMenu_2_Clave-de-acceso" href="https://portal.once.es/GestionLaboralNomina/Seguridad/GestionContrasenia.aspx">Acerca de Clave de acceso</a></li>
+			<li class="ui-menu-item" id="li_2_Cambio-de-clave-segura">
+				<a id="lnkMenu_2_Cambio-de-clave-segura" href="https://portal.once.es/GestionLaboralNomina/Seguridad/CambioContrasenia.aspx">Cambio de clave segura</a>
+			</li>
+			<li class="ui-menu-item" id="li_2_Modificación-pregunta-personal-de-seguridad">
+				<a id="lnkMenu_2_Modificación-pregunta-personal-de-seguridad" href="https://portal.once.es/GestionLaboralNomina/Seguridad/PreguntaSeguridad.aspx">Modificación pregunta personal de seguridad</a>
+			</li>
+		</ul>
+	</li>
+</ul>
+</div>
+                          </div>
+
+                          
+
+<script type="text/javascript" src="../JScript/OficinaVirtual/Almacen.js"></script>
+
+<div id="ctl00_ContentPlaceHolder1_RastroPag" class="Rastro">
+    <span class="TextoIniRastro">Estás en: </span>
+    <ul>
+    <li><span><a href="../Bienvenido.aspx">Inicio</a></span></li>
+    <li><span><a href="Control.aspx">Oficina virtual del vendedor</a></span></li>
+    <li class="lastitem"><span>Control de almacén de lotería instantánea</span></li>
+    </ul>    
+</div>
+<div class="content AlineaIzq">
+    
+    <div id="dvSaltoCont" class="Linea"> <h1 tabindex="-1" id="SaltoCont">Control de almacén de lotería instantánea</h1></div>    
+    <div id="ctl00_ContentPlaceHolder1_dvError" class="margenSup"></div>
+     <!-- Contenido -->
+    <div id="ctl00_ContentPlaceHolder1_dvContenido">        
+        <div id="ctl00_ContentPlaceHolder1_dvIntroduccion" class="TextoIntroductorio fuente07">En esta página se pueden consultar los productos de lotería instantánea asignados al vendedor y su estado.</div>
+        
+    <div id="region-content" class="documentContent margenSup">    
+        <div class="margenSuperiorControl">
+         <!--   <div class="anchoEt FlotaIz"><label for="ctl00_ContentPlaceHolder1_ddlProductos" id="ctl00_ContentPlaceHolder1_lbproducto"><span class="asterisco "></span></label></div> -->
+            
+        </div>    
+        <div class="Centrar padGeneral fuente07">
+            
+        </div>
+    </div>
+    <br> 
+    <div class="checkbox-line input-focus">
+        <input type="checkbox" id="chkGridAnidado" title="Marca esta casilla si deseas visualizar el contenido de las tablas anidadas en una única página." onclick="HideSubgrids(0)">
+        <label id="lblCheckVisualizarTablasAnidadas" title="Marca esta casilla si deseas visualizar el contenido de las tablas anidadas en una única página.">
+           Visualizar tablas anidadas        
+        </label>
+    </div>
+        
+    <!-- GridView -->
+    <script type="text/javascript">
+//<![CDATA[
+Sys.WebForms.PageRequestManager._initialize('ctl00$ContentPlaceHolder1$ScriptManager1', 'aspnetForm', ['tctl00$ContentPlaceHolder1$UpdatePanel1',''], [], [], 90, 'ctl00');
+//]]>
+</script>
+
+    <div id="ctl00_ContentPlaceHolder1_UpdatePanel1">
+	
+            <div>
+		<table class="Tabla minwidth60 margenSupContenidos" cellspacing="0" rules="all" border="1" id="gvwAlmacen" style="border-collapse:collapse;">
+			<caption class="element-invisible">
+				Datos de Productos en almacén de lotería instantánea
+			</caption><tbody><tr>
+				<th scope="col">PRODUCTO</th><th class="Centrar" scope="col">RETIRADO</th><th class="Centrar" scope="col">CONFIRMADO</th><th class="Centrar" scope="col">ACTIVADO</th><th class="Centrar" scope="col">VENDIDO</th>
+			</tr><tr>
+				<th>    
+                                <a id="lnkProducto_1" href="javascript:;" headertext="Producto">7 DE LA SUERTE 2025                                    
+                                    <img alt="Mostrar detalle producto" id="imgProducto" style="cursor: pointer" src="../Imagenes/mas.png">
+                                </a>     
+                                                                
+
+                                <div id="pnlDetalle_7 DE LA SUERTE 2025" style="display: none">
+					
+                                    <div class="subtabla">
+                                        <div>
+						<table class="Tabla ancho100x100" cellspacing="0" rules="all" border="1" id="gvwDetalles" style="border-collapse:collapse;">
+							<caption>
+								Detalle del producto: 7 DE LA SUERTE 2025
+							</caption><tbody><tr>
+								<th class="Centrar" scope="col">Nº de Libro</th><th class="Centrar" scope="col">Estado</th><th class="Centrar" scope="col">Fecha</th>
+							</tr><tr>
+								<th>0113541</th><td class="AlineaDer espacioCol sizeCampoMedio">Activado</td><td class="AlineaDer espacioCol centrado">26/06/2026</td>
+							</tr><tr>
+								<th>0034323</th><td class="AlineaDer espacioCol sizeCampoMedio">Confirmado</td><td class="AlineaDer espacioCol centrado">17/06/2026</td>
+							</tr><tr>
+								<th>0042842</th><td class="AlineaDer espacioCol sizeCampoMedio">Confirmado</td><td class="AlineaDer espacioCol centrado">01/07/2026</td>
+							</tr>
+						</tbody></table>
+					</div>                                         
+                                    </div>
+                                
+				</div>
+                            </th><td class="Centrar">-</td><td class="Centrar">2</td><td class="Centrar">1</td><td class="Centrar">-</td>
+			</tr><tr>
+				<th>    
+                                <a id="lnkProducto_2" href="javascript:;" headertext="Producto">GALLETA DE LA FORTUNA 2025                                    
+                                    <img alt="Mostrar detalle producto" id="imgProducto" style="cursor: pointer" src="../Imagenes/mas.png">
+                                </a>     
+                                                                
+
+                                <div id="pnlDetalle_GALLETA DE LA FORTUNA 2025" style="display: none">
+					
+                                    <div class="subtabla">
+                                        <div>
+						<table class="Tabla ancho100x100" cellspacing="0" rules="all" border="1" id="gvwDetalles" style="border-collapse:collapse;">
+							<caption>
+								Detalle del producto: GALLETA DE LA FORTUNA 2025
+							</caption><tbody><tr>
+								<th class="Centrar" scope="col">Nº de Libro</th><th class="Centrar" scope="col">Estado</th><th class="Centrar" scope="col">Fecha</th>
+							</tr><tr>
+								<th>0359300</th><td class="AlineaDer espacioCol sizeCampoMedio">Activado</td><td class="AlineaDer espacioCol centrado">30/04/2026</td>
+							</tr><tr>
+								<th>0973134</th><td class="AlineaDer espacioCol sizeCampoMedio">Confirmado</td><td class="AlineaDer espacioCol centrado">15/04/2026</td>
+							</tr><tr>
+								<th>0964799</th><td class="AlineaDer espacioCol sizeCampoMedio">Confirmado</td><td class="AlineaDer espacioCol centrado">13/05/2026</td>
+							</tr><tr>
+								<th>0965629</th><td class="AlineaDer espacioCol sizeCampoMedio">Confirmado</td><td class="AlineaDer espacioCol centrado">20/05/2026</td>
+							</tr>
+						</tbody></table>
+					</div>                                         
+                                    </div>
+                                
+				</div>
+                            </th><td class="Centrar">-</td><td class="Centrar">3</td><td class="Centrar">1</td><td class="Centrar">-</td>
+			</tr><tr>
+				<th>    
+                                <a id="lnkProducto_3" href="javascript:;" headertext="Producto">EL GATO DE LA FORTUNA                                    
+                                    <img alt="Mostrar detalle producto" id="imgProducto" style="cursor: pointer" src="../Imagenes/mas.png">
+                                </a>     
+                                                                
+
+                                <div id="pnlDetalle_EL GATO DE LA FORTUNA" style="display: none">
+					
+                                    <div class="subtabla">
+                                        <div>
+						<table class="Tabla ancho100x100" cellspacing="0" rules="all" border="1" id="gvwDetalles" style="border-collapse:collapse;">
+							<caption>
+								Detalle del producto: EL GATO DE LA FORTUNA
+							</caption><tbody><tr>
+								<th class="Centrar" scope="col">Nº de Libro</th><th class="Centrar" scope="col">Estado</th><th class="Centrar" scope="col">Fecha</th>
+							</tr><tr>
+								<th>0306747</th><td class="AlineaDer espacioCol sizeCampoMedio">Activado</td><td class="AlineaDer espacioCol centrado">26/06/2026</td>
+							</tr><tr>
+								<th>0312220</th><td class="AlineaDer espacioCol sizeCampoMedio">Confirmado</td><td class="AlineaDer espacioCol centrado">10/06/2026</td>
+							</tr><tr>
+								<th>0356038</th><td class="AlineaDer espacioCol sizeCampoMedio">Confirmado</td><td class="AlineaDer espacioCol centrado">24/06/2026</td>
+							</tr>
+						</tbody></table>
+					</div>                                         
+                                    </div>
+                                
+				</div>
+                            </th><td class="Centrar">-</td><td class="Centrar">2</td><td class="Centrar">1</td><td class="Centrar">-</td>
+			</tr><tr>
+				<th>    
+                                <a id="lnkProducto_4" href="javascript:;" headertext="Producto">LAS MIL Y UNA NOCHES                                    
+                                    <img alt="Mostrar detalle producto" id="imgProducto" style="cursor: pointer" src="../Imagenes/mas.png">
+                                </a>     
+                                                                
+
+                                <div id="pnlDetalle_LAS MIL Y UNA NOCHES" style="display: none">
+					
+                                    <div class="subtabla">
+                                        <div>
+						<table class="Tabla ancho100x100" cellspacing="0" rules="all" border="1" id="gvwDetalles" style="border-collapse:collapse;">
+							<caption>
+								Detalle del producto: LAS MIL Y UNA NOCHES
+							</caption><tbody><tr>
+								<th class="Centrar" scope="col">Nº de Libro</th><th class="Centrar" scope="col">Estado</th><th class="Centrar" scope="col">Fecha</th>
+							</tr><tr>
+								<th>0235656</th><td class="AlineaDer espacioCol sizeCampoMedio">Activado</td><td class="AlineaDer espacioCol centrado">30/05/2026</td>
+							</tr><tr>
+								<th>0303357</th><td class="AlineaDer espacioCol sizeCampoMedio">Confirmado</td><td class="AlineaDer espacioCol centrado">13/05/2026</td>
+							</tr><tr>
+								<th>0310700</th><td class="AlineaDer espacioCol sizeCampoMedio">Confirmado</td><td class="AlineaDer espacioCol centrado">20/05/2026</td>
+							</tr><tr>
+								<th>0338032</th><td class="AlineaDer espacioCol sizeCampoMedio">Confirmado</td><td class="AlineaDer espacioCol centrado">17/06/2026</td>
+							</tr>
+						</tbody></table>
+					</div>                                         
+                                    </div>
+                                
+				</div>
+                            </th><td class="Centrar">-</td><td class="Centrar">3</td><td class="Centrar">1</td><td class="Centrar">-</td>
+			</tr><tr>
+				<th>    
+                                <a id="lnkProducto_5" href="javascript:;" headertext="Producto">PALABRAS GANADORAS                                    
+                                    <img alt="Mostrar detalle producto" id="imgProducto" style="cursor: pointer" src="../Imagenes/mas.png">
+                                </a>     
+                                                                
+
+                                <div id="pnlDetalle_PALABRAS GANADORAS" style="display: none">
+					
+                                    <div class="subtabla">
+                                        <div>
+						<table class="Tabla ancho100x100" cellspacing="0" rules="all" border="1" id="gvwDetalles" style="border-collapse:collapse;">
+							<caption>
+								Detalle del producto: PALABRAS GANADORAS
+							</caption><tbody><tr>
+								<th class="Centrar" scope="col">Nº de Libro</th><th class="Centrar" scope="col">Estado</th><th class="Centrar" scope="col">Fecha</th>
+							</tr><tr>
+								<th>0174198</th><td class="AlineaDer espacioCol sizeCampoMedio">Activado</td><td class="AlineaDer espacioCol centrado">26/06/2026</td>
+							</tr><tr>
+								<th>0225124</th><td class="AlineaDer espacioCol sizeCampoMedio">Confirmado</td><td class="AlineaDer espacioCol centrado">13/05/2026</td>
+							</tr><tr>
+								<th>0222728</th><td class="AlineaDer espacioCol sizeCampoMedio">Confirmado</td><td class="AlineaDer espacioCol centrado">20/05/2026</td>
+							</tr>
+						</tbody></table>
+					</div>                                         
+                                    </div>
+                                
+				</div>
+                            </th><td class="Centrar">-</td><td class="Centrar">2</td><td class="Centrar">1</td><td class="Centrar">-</td>
+			</tr><tr>
+				<th>    
+                                <a id="lnkProducto_6" href="javascript:;" headertext="Producto">X10 2026                                    
+                                    <img alt="Mostrar detalle producto" id="imgProducto" style="cursor: pointer" src="../Imagenes/mas.png">
+                                </a>     
+                                                                
+
+                                <div id="pnlDetalle_X10 2026" style="display: none">
+					
+                                    <div class="subtabla">
+                                        <div>
+						<table class="Tabla ancho100x100" cellspacing="0" rules="all" border="1" id="gvwDetalles" style="border-collapse:collapse;">
+							<caption>
+								Detalle del producto: X10 2026
+							</caption><tbody><tr>
+								<th class="Centrar" scope="col">Nº de Libro</th><th class="Centrar" scope="col">Estado</th><th class="Centrar" scope="col">Fecha</th>
+							</tr><tr>
+								<th>0545889</th><td class="AlineaDer espacioCol sizeCampoMedio">Activado</td><td class="AlineaDer espacioCol centrado">03/07/2026</td>
+							</tr><tr>
+								<th>0741124</th><td class="AlineaDer espacioCol sizeCampoMedio">Asignado a vendedor</td><td class="AlineaDer espacioCol centrado">-</td>
+							</tr><tr>
+								<th>0720951</th><td class="AlineaDer espacioCol sizeCampoMedio">Confirmado</td><td class="AlineaDer espacioCol centrado">01/07/2026</td>
+							</tr><tr>
+								<th>0583673</th><td class="AlineaDer espacioCol sizeCampoMedio">Vendido</td><td class="AlineaDer espacioCol centrado">03/07/2026</td>
+							</tr>
+						</tbody></table>
+					</div>                                         
+                                    </div>
+                                
+				</div>
+                            </th><td class="Centrar">-</td><td class="Centrar">1</td><td class="Centrar">1</td><td class="Centrar">1</td>
+			</tr><tr>
+				<th>    
+                                <a id="lnkProducto_7" href="javascript:;" headertext="Producto">X20 2026                                    
+                                    <img alt="Mostrar detalle producto" id="imgProducto" style="cursor: pointer" src="../Imagenes/mas.png">
+                                </a>     
+                                                                
+
+                                <div id="pnlDetalle_X20 2026" style="display: none">
+					
+                                    <div class="subtabla">
+                                        <div>
+						<table class="Tabla ancho100x100" cellspacing="0" rules="all" border="1" id="gvwDetalles" style="border-collapse:collapse;">
+							<caption>
+								Detalle del producto: X20 2026
+							</caption><tbody><tr>
+								<th class="Centrar" scope="col">Nº de Libro</th><th class="Centrar" scope="col">Estado</th><th class="Centrar" scope="col">Fecha</th>
+							</tr><tr>
+								<th>0425907</th><td class="AlineaDer espacioCol sizeCampoMedio">Activado</td><td class="AlineaDer espacioCol centrado">17/06/2026</td>
+							</tr><tr>
+								<th>0429754</th><td class="AlineaDer espacioCol sizeCampoMedio">Confirmado</td><td class="AlineaDer espacioCol centrado">17/06/2026</td>
+							</tr><tr>
+								<th>0450114</th><td class="AlineaDer espacioCol sizeCampoMedio">Confirmado</td><td class="AlineaDer espacioCol centrado">24/06/2026</td>
+							</tr><tr>
+								<th>0455725</th><td class="AlineaDer espacioCol sizeCampoMedio">Confirmado</td><td class="AlineaDer espacioCol centrado">01/07/2026</td>
+							</tr>
+						</tbody></table>
+					</div>                                         
+                                    </div>
+                                
+				</div>
+                            </th><td class="Centrar">-</td><td class="Centrar">3</td><td class="Centrar">1</td><td class="Centrar">-</td>
+			</tr><tr>
+				<th>    
+                                <a id="lnkProducto_8" href="javascript:;" headertext="Producto">X50 2026                                    
+                                    <img alt="Mostrar detalle producto" id="imgProducto" style="cursor: pointer" src="../Imagenes/mas.png">
+                                </a>     
+                                                                
+
+                                <div id="pnlDetalle_X50 2026" style="display: none">
+					
+                                    <div class="subtabla">
+                                        <div>
+						<table class="Tabla ancho100x100" cellspacing="0" rules="all" border="1" id="gvwDetalles" style="border-collapse:collapse;">
+							<caption>
+								Detalle del producto: X50 2026
+							</caption><tbody><tr>
+								<th class="Centrar" scope="col">Nº de Libro</th><th class="Centrar" scope="col">Estado</th><th class="Centrar" scope="col">Fecha</th>
+							</tr><tr>
+								<th>0482738</th><td class="AlineaDer espacioCol sizeCampoMedio">Activado</td><td class="AlineaDer espacioCol centrado">27/06/2026</td>
+							</tr><tr>
+								<th>0545044</th><td class="AlineaDer espacioCol sizeCampoMedio">Asignado a vendedor</td><td class="AlineaDer espacioCol centrado">-</td>
+							</tr><tr>
+								<th>0544969</th><td class="AlineaDer espacioCol sizeCampoMedio">Asignado a vendedor</td><td class="AlineaDer espacioCol centrado">-</td>
+							</tr><tr>
+								<th>0482795</th><td class="AlineaDer espacioCol sizeCampoMedio">Confirmado</td><td class="AlineaDer espacioCol centrado">24/06/2026</td>
+							</tr><tr>
+								<th>0526454</th><td class="AlineaDer espacioCol sizeCampoMedio">Confirmado</td><td class="AlineaDer espacioCol centrado">01/07/2026</td>
+							</tr><tr>
+								<th>0526408</th><td class="AlineaDer espacioCol sizeCampoMedio">Confirmado</td><td class="AlineaDer espacioCol centrado">01/07/2026</td>
+							</tr>
+						</tbody></table>
+					</div>                                         
+                                    </div>
+                                
+				</div>
+                            </th><td class="Centrar">-</td><td class="Centrar">3</td><td class="Centrar">1</td><td class="Centrar">-</td>
+			</tr><tr>
+				<th>    
+                                <a id="lnkProducto_9" href="javascript:;" headertext="Producto">5 AÑOS PARA TI                                    
+                                    <img alt="Mostrar detalle producto" id="imgProducto" style="cursor: pointer" src="../Imagenes/mas.png">
+                                </a>     
+                                                                
+
+                                <div id="pnlDetalle_5 AÑOS PARA TI" style="display: none">
+					
+                                    <div class="subtabla">
+                                        <div>
+						<table class="Tabla ancho100x100" cellspacing="0" rules="all" border="1" id="gvwDetalles" style="border-collapse:collapse;">
+							<caption>
+								Detalle del producto: 5 AÑOS PARA TI
+							</caption><tbody><tr>
+								<th class="Centrar" scope="col">Nº de Libro</th><th class="Centrar" scope="col">Estado</th><th class="Centrar" scope="col">Fecha</th>
+							</tr><tr>
+								<th>0268328</th><td class="AlineaDer espacioCol sizeCampoMedio">Activado</td><td class="AlineaDer espacioCol centrado">02/07/2026</td>
+							</tr><tr>
+								<th>0221904</th><td class="AlineaDer espacioCol sizeCampoMedio">Confirmado</td><td class="AlineaDer espacioCol centrado">06/05/2026</td>
+							</tr><tr>
+								<th>0281925</th><td class="AlineaDer espacioCol sizeCampoMedio">Confirmado</td><td class="AlineaDer espacioCol centrado">13/05/2026</td>
+							</tr><tr>
+								<th>0306387</th><td class="AlineaDer espacioCol sizeCampoMedio">Confirmado</td><td class="AlineaDer espacioCol centrado">20/05/2026</td>
+							</tr>
+						</tbody></table>
+					</div>                                         
+                                    </div>
+                                
+				</div>
+                            </th><td class="Centrar">-</td><td class="Centrar">3</td><td class="Centrar">1</td><td class="Centrar">-</td>
+			</tr><tr>
+				<th>    
+                                <a id="lnkProducto_10" href="javascript:;" headertext="Producto">RASCA DE VERANO 2026                                    
+                                    <img alt="Mostrar detalle producto" id="imgProducto" style="cursor: pointer" src="../Imagenes/mas.png">
+                                </a>     
+                                                                
+
+                                <div id="pnlDetalle_RASCA DE VERANO 2026" style="display: none">
+					
+                                    <div class="subtabla">
+                                        <div>
+						<table class="Tabla ancho100x100" cellspacing="0" rules="all" border="1" id="gvwDetalles" style="border-collapse:collapse;">
+							<caption>
+								Detalle del producto: RASCA DE VERANO 2026
+							</caption><tbody><tr>
+								<th class="Centrar" scope="col">Nº de Libro</th><th class="Centrar" scope="col">Estado</th><th class="Centrar" scope="col">Fecha</th>
+							</tr><tr>
+								<th>0033141</th><td class="AlineaDer espacioCol sizeCampoMedio">Activado</td><td class="AlineaDer espacioCol centrado">24/06/2026</td>
+							</tr><tr>
+								<th>0151946</th><td class="AlineaDer espacioCol sizeCampoMedio">Confirmado</td><td class="AlineaDer espacioCol centrado">20/05/2026</td>
+							</tr><tr>
+								<th>0135259</th><td class="AlineaDer espacioCol sizeCampoMedio">Confirmado</td><td class="AlineaDer espacioCol centrado">03/06/2026</td>
+							</tr><tr>
+								<th>0155928</th><td class="AlineaDer espacioCol sizeCampoMedio">Confirmado</td><td class="AlineaDer espacioCol centrado">17/06/2026</td>
+							</tr>
+						</tbody></table>
+					</div>                                         
+                                    </div>
+                                
+				</div>
+                            </th><td class="Centrar">-</td><td class="Centrar">3</td><td class="Centrar">1</td><td class="Centrar">-</td>
+			</tr><tr>
+				<th>    
+                                <a id="lnkProducto_11" href="javascript:;" headertext="Producto">MEGA MILLONARIO 2026                                    
+                                    <img alt="Mostrar detalle producto" id="imgProducto" style="cursor: pointer" src="../Imagenes/mas.png">
+                                </a>     
+                                                                
+
+                                <div id="pnlDetalle_MEGA MILLONARIO 2026" style="display: none">
+					
+                                    <div class="subtabla">
+                                        <div>
+						<table class="Tabla ancho100x100" cellspacing="0" rules="all" border="1" id="gvwDetalles" style="border-collapse:collapse;">
+							<caption>
+								Detalle del producto: MEGA MILLONARIO 2026
+							</caption><tbody><tr>
+								<th class="Centrar" scope="col">Nº de Libro</th><th class="Centrar" scope="col">Estado</th><th class="Centrar" scope="col">Fecha</th>
+							</tr><tr>
+								<th>0206393</th><td class="AlineaDer espacioCol sizeCampoMedio">Activado</td><td class="AlineaDer espacioCol centrado">03/07/2026</td>
+							</tr><tr>
+								<th>0334629</th><td class="AlineaDer espacioCol sizeCampoMedio">Asignado a vendedor</td><td class="AlineaDer espacioCol centrado">-</td>
+							</tr><tr>
+								<th>0273713</th><td class="AlineaDer espacioCol sizeCampoMedio">Confirmado</td><td class="AlineaDer espacioCol centrado">17/06/2026</td>
+							</tr><tr>
+								<th>0323888</th><td class="AlineaDer espacioCol sizeCampoMedio">Confirmado</td><td class="AlineaDer espacioCol centrado">01/07/2026</td>
+							</tr><tr>
+								<th>0206337</th><td class="AlineaDer espacioCol sizeCampoMedio">Vendido</td><td class="AlineaDer espacioCol centrado">03/07/2026</td>
+							</tr>
+						</tbody></table>
+					</div>                                         
+                                    </div>
+                                
+				</div>
+                            </th><td class="Centrar">-</td><td class="Centrar">2</td><td class="Centrar">1</td><td class="Centrar">1</td>
+			</tr><tr>
+				<th>    
+                                <a id="lnkProducto_12" href="javascript:;" headertext="Producto">SIETE Y MEDIA 2026                                    
+                                    <img alt="Mostrar detalle producto" id="imgProducto" style="cursor: pointer" src="../Imagenes/mas.png">
+                                </a>     
+                                                                
+
+                                <div id="pnlDetalle_SIETE Y MEDIA 2026" style="display: none">
+					
+                                    <div class="subtabla">
+                                        <div>
+						<table class="Tabla ancho100x100" cellspacing="0" rules="all" border="1" id="gvwDetalles" style="border-collapse:collapse;">
+							<caption>
+								Detalle del producto: SIETE Y MEDIA 2026
+							</caption><tbody><tr>
+								<th class="Centrar" scope="col">Nº de Libro</th><th class="Centrar" scope="col">Estado</th><th class="Centrar" scope="col">Fecha</th>
+							</tr><tr>
+								<th>0040018</th><td class="AlineaDer espacioCol sizeCampoMedio">Activado</td><td class="AlineaDer espacioCol centrado">03/07/2026</td>
+							</tr><tr>
+								<th>0270125</th><td class="AlineaDer espacioCol sizeCampoMedio">Asignado a vendedor</td><td class="AlineaDer espacioCol centrado">-</td>
+							</tr><tr>
+								<th>0270166</th><td class="AlineaDer espacioCol sizeCampoMedio">Asignado a vendedor</td><td class="AlineaDer espacioCol centrado">-</td>
+							</tr><tr>
+								<th>0153923</th><td class="AlineaDer espacioCol sizeCampoMedio">Confirmado</td><td class="AlineaDer espacioCol centrado">01/07/2026</td>
+							</tr><tr>
+								<th>0153887</th><td class="AlineaDer espacioCol sizeCampoMedio">Confirmado</td><td class="AlineaDer espacioCol centrado">01/07/2026</td>
+							</tr><tr>
+								<th>0039978</th><td class="AlineaDer espacioCol sizeCampoMedio">Vendido</td><td class="AlineaDer espacioCol centrado">03/07/2026</td>
+							</tr>
+						</tbody></table>
+					</div>                                         
+                                    </div>
+                                
+				</div>
+                            </th><td class="Centrar">-</td><td class="Centrar">2</td><td class="Centrar">1</td><td class="Centrar">1</td>
+			</tr><tr class="AltoFila Centrar" align="center" style="color:White;background-color:#605241;font-weight:bold;">
+				<th><div id="divTotal"><a href="#" id="lnkTotal" onclick="HideSubgrids(1)" title="Pulsa aquí para ocultar las tablas anidadas">TOTAL: 44</a></div></th><td style="background-color:#605241;">0</td><td style="background-color:#605241;">29</td><td style="background-color:#605241;">12</td><td style="background-color:#605241;">3</td>
+			</tr>
+		</tbody></table>
+	</div>
+
+            <!-- Detalle -->            
+            <div id="pnlDetalle" style="display: none">
+		                
+                <div id="pnlContentDetalle"></div>
+                <br>
+                <input type="button" id="btnVolverDetalle" title="Volver" value="Volver" class="BotonMedio2 margenDerecha" data-parent="lnkProducto" onclick="Volver()">                                    
+            
+	</div>
+            
+            <br>
+
+      
+</div>
+        
+    <input name="ctl00$ContentPlaceHolder1$hError" type="hidden" id="ctl00_ContentPlaceHolder1_hError">
+    <div id="ctl00_ContentPlaceHolder1_dvNotaAsignado" class="TextoIntroductorio fuente07">NOTA: Asignado a vendedor: Libros que recibirá el vendedor que aún están en fase de preparado.</div>
+           
+     <div class="padGeneral Centrar fuente07">
+              
+     </div>
+</div>
+</div> 
+<div id="dialog-detalle" title="Detalle">
+
+
+<script type="text/javascript">
+//<![CDATA[
+window.globalNumTr = 0;
+
+
+function cargaTecla(e, identificador, tdpadre, idpadre, totalProductos){
+
+    if (e.keyCode==13)
+       CargaDetalleLink(identificador, tdpadre, idpadre, totalProductos) ;
+
+}
+
+function CargaDetalleLink(identificador, tdpadre, idpadre, totalProductos) {
+    
+    var exploreBrowser = getInternetExplorerVersion();    
+    var idfocus = totalProductos;
+    
+    tdpadre.innerHTML = "<a href='#'>" + idpadre + " <img src='../Imagenes/mas.png' alt='Mostrar' title='Mostrar'/></a>";
+    tdpadre.focus();
+     
+    var contador = 0;
+    
+    var $seleccionTr =  $('tr[id$=' + identificador + ']');
+    
+     $seleccionTr.each(function(idx, el) 
+     {
+        var estiloActivo = el.style.display;
+      
+       
+        if (estiloActivo == 'table-row')  
+        {
+            if (contador == 0)
+            {                
+//                $('tr[id$=' + identificador + ']').css('display','none');
+                el.style.display='none';  
+                if (exploreBrowser == -1)
+                {
+                    el.style.visibility ='none';  
+                    el.style.overflow ='none'; 
+                }
+                else
+                {
+                     el.style.visibility ='hidden'; 
+                }   
+            }
+            else
+            {   
+                    el.style.display='table-row';  
+                    el.style.visibility ='visible'; 
+                     
+                    if (exploreBrowser == -1)
+                    {
+                        
+                        el.style.overflow ='visible';  
+                    }
+            }
+        }
+        else
+        {        
+            if (estiloActivo == 'none')  
+            {                
+                //$('tr[id$=' + identificador + ']').css('display','none');
+                el.style.display='table-row';  
+                el.style.visibility ='visible'; 
+                 
+                if (exploreBrowser == -1)
+                {                    
+                    el.style.overflow ='visible';  
+                }
+//                el.style.display='none';  
+//                if (exploreBrowser == -1)
+//                {
+//                    el.style.visibility ='none';  
+//                    el.style.overflow ='none'; 
+//                }
+//                else
+//                {
+//                     el.style.visibility ='hidden'; 
+//                }
+            }
+            else
+            {
+                 contador++;
+        
+                $('tr[id$=' + identificador + ']').css('display','table-row');
+                
+                el.style.display='table-row';  
+                el.style.visibility ='visible'; 
+                 
+                if (exploreBrowser == -1)
+                {                    
+                    el.style.overflow ='visible';  
+                }
+            }            
+
+            if (idfocus == totalProductos)
+            {
+                tdpadre.innerHTML = "<a href='#'>" + idpadre  + " <img src='../Imagenes/menos.png' alt='Ocultar' title='Ocultar'/></a>";
+                //el.setAttribute("tabindex",idfocus);
+                //el.focus();                
+            }
+            
+            idfocus++;           
+        }
+    });
+    
+    window.globalNumTr = idfocus;    
+}
+
+function getInternetExplorerVersion()
+// Returns the version of Internet Explorer or a -1
+// (indicating the use of another browser).
+{
+  var rv = -1; // Return value assumes failure.
+  if (navigator.appName == 'Microsoft Internet Explorer')
+  {
+    var ua = navigator.userAgent;
+    var re  = new RegExp("MSIE ([0-9]{1,}[\.0-9]{0,})");
+    if (re.exec(ua) != null)
+      rv = parseFloat( RegExp.$1 );
+  }
+  return rv;
+}
+
+
+//]]>
+       
+</script>
+
+                                        
+                      <input name="ctl00$hPathImgLinkHead" type="hidden" id="ctl00_hPathImgLinkHead" value="../imagenes/indica_abre_ventana_nueva.gif">
+                      <input name="ctl00$hAuditoria" type="hidden" id="ctl00_hAuditoria">                           
+                    </div></form>                               
+                
+<footer role="presentation">
+	<div id="portal-footer-wrapper">
+		<div id="footer-general-site-actions">
+			<div class="wrap">
+				<div id="footer-site-actions">
+					<ul id="footer-portal-siteactions">
+						<li>
+							<a href="https://portal.once.es/empleado/accesibilidad" id="ctl00_wcPie_idAcc" title="Accesibilidad" target="_blank">Accesibilidad</a>                            
+						</li>
+						<li>
+							<a href="https://portal.once.es/empleado/politica-de-privacidad" id="ctl00_wcPie_idPolit" title="Política de privacidad" target="_blank">Política de privacidad</a>
+						</li>
+						
+                        <li>
+							<a href="../MapaWeb.aspx" id="ctl00_wcPie_lnkMapa" title="Mapa Web">Mapa Web</a>
+						</li>
+						
+					</ul>
+				</div>
+				<div id="footer-banners-once">
+					<img src="/GestionLaboralNomina/Imagenes/gs-once.png" title="Grupo social ONCE" alt="Grupo social ONCE" id="gs-once">
+                    <script>
+                        document.getElementById('gs-once').src = '/GestionLaboralNomina/Imagenes/gs-once.png';
+                    </script> 
+                  
+                     
+				</div>
+			</div>
+		</div>
+		<div id="ley-transparencia">
+			<p>LEY DE TRANSPARENCIA</p>
+			<p>Esta web se ajusta a lo establecido en la Ley 19/2013, de 9 de diciembre, de transparencia, acceso a la información pública y buen gobierno.</p>
+		</div>
+		<div id="portal-footer">
+			<p>© ONCE <span id="ctl00_wcPie_spAnio">2026</span> - Versión <span id="ctl00_wcPie_spVersion">1.2.21</span></p>
+		</div>
+	</div>
+</footer>
+              </div>     
+        </div>             
+      </div>
+    </div>
+
+     
+
+       
+
+  </div>
+
+
+ 
+
+</div></body></html>

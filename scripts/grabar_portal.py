@@ -21,7 +21,7 @@ from playwright.sync_api import sync_playwright
 
 from portal_once import PORTAL_URL
 
-DURACION_SEGUNDOS = 600
+DURACION_SEGUNDOS = 1800
 SELECTORES_PATH = Path(__file__).resolve().parent.parent / "config" / "selectores_once.json"
 
 # JS inyectado en cada documento de cada página para capturar clicks

@@ -1,0 +1,1548 @@
+<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="es" lang="es"><head><title>
+	Consulta de premios repartidos - PortalONCE
+</title><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.6, minimum-scale=0.6666"><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="keywords" content="Portal del empleado, Portal ONCE, Portal del trabajador, Gestión laboral y de nómina, Gestiona" lang="es"><meta name="copyright" content="Organización Nacional de Ciegos Españoles" lang="es"><meta name="Author" content="ONCE" lang="es"><meta http-equiv="CACHE-CONTROL" content="NO-CACHE"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="expires" content="-1"><link href="../Estilos/fontawesome-free-5.15.3-web-all.min.css" rel="stylesheet"><link rel="stylesheet" href="../Estilos/bootstrap.min.css" media="screen"><link type="text/css" rel="stylesheet" href="../JScript/jquery-ui.css"><link id="ctl00_CambioCSS" type="text/css" rel="Stylesheet" href="../Estilos/Estilos.css"><link rel="stylesheet" type="text/css" href="../Estilos/stylesCalendar.css"><style type="text/css" media="screen">@import url(https://fast.fonts.net/cssapi/b34e234a-09ec-49bd-bbf1-fed58b87fb29.css);</style>
+    <script>
+        function ReplaceDialogTitleSPANForH1(dialogObject) {
+            var w = $(dialogObject).dialog("widget");
+            var t = $(".ui-dialog-title", w);
+            var h1 = $("<h1>", {
+                id: t.attr("id"),
+                class: t.attr("class")
+            }).html(t.text());
+            t.replaceWith(h1);
+        }
+    </script>
+<script type="text/javascript" src="../JScript/jquery-3.7.0.min.js"></script><script type="text/javascript" src="../JScript/menu/JVersion.js"></script><script type="text/javascript" src="../JScript/change.js"></script><script type="text/javascript" src="../JScript/selectivizr.js"></script><link rel="stylesheet" type="text/css" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css"></head>
+<body id="ctl00_bCorp">
+ <div id="container" aria-hidden="false" class="anchoMinimo">  
+   <div class="">  
+     <div class="fondo">
+        <div class="Centro">            
+              <div>
+                
+
+<div class="Cabecera AltoMinMax">
+    <div id="Enlaces">
+        <div class="EnlacesCabecera">
+            <span id="ctl00_WcCabecera1_enlaceContenido" class="Desc1"><a href="#SaltoCont" accesskey="1">Salto a contenido</a></span>
+            <span id="ctl00_WcCabecera1_spBarraSeparacion"> | </span><span id="ctl00_WcCabecera1_dvSaltarNav" class="Desc1"><a href="#h2Menu" accesskey="2">Salto a navegación</a></span>  
+             
+             
+            <div class="Desconexion" id="Desconexion">
+                <div id="ctl00_WcCabecera1_dvEmpleado" class="user">JUAN ANTONIO PANADERO JIMENEZ</div>                
+                
+                <a href="../Seguridad/Salir.aspx" id="ctl00_WcCabecera1_idSalir" class="logout" aria-label="Salir de Gestiona (cierra la sesión)" accesskey="S" title="Salir de Gestiona (cierra la sesión)"><span>Salir</span></a>
+
+               
+            </div>
+        </div>
+        
+        <!-- LogoPortal -->
+       <div class="contCabecera">
+            <div class="PortalEmple">
+                Gestión Laboral y de Nómina</div>
+            <div class="PortalE">
+                <a href="https://portal.once.es" id="ctl00_WcCabecera1_hrEnlace" title="Portal del Empleado - Página de Inicio" accesskey="3">
+                    <img src="../Imagenes/logotipo.png" id="ctl00_WcCabecera1_imgLogo" alt="Portal del Empleado - Página de Inicio" class="imgLogoPrincipal"></a>
+            </div>
+                      
+            
+<div class="iconos">   
+        
+         
+         <div id="ctl00_WcCabecera1_WcEnlacesCabecera1_LinkCabecerDer" class="EnlacesCabeceraDer AlineaDer">
+
+         <!-- Enlaces derecha -->
+         <div id="ctl00_WcCabecera1_WcEnlacesCabecera1_dvBotonesCabecera" class="contentBotonesCab">
+           <h2 class="element-invisible">Herramientas</h2> 
+       <!--   <ul class="BotonesCabecera">-->
+          <!--     <li id="ctl00_WcCabecera1_WcEnlacesCabecera1_liAyuda">-->
+                   <a href="../Ayuda/Ayuda.aspx" id="ctl00_WcCabecera1_WcEnlacesCabecera1_dvAyuda" title="Ayuda del Portal del Empleado de la ONCE - Gestión laboral y de nóminas" class="icono tamanioImgIcono"><img src="../Imagenes/help.gif" id="ctl00_WcCabecera1_WcEnlacesCabecera1_imgAyuda" alt="Ayuda del Portal del Empleado de la ONCE - Gestión laboral y de nóminas" class="icono tamanioImgIcono"></a>
+        <!--    </ul>-->
+           
+          </div>
+         </div>
+</div>
+
+           
+        </div>
+
+        <div class="clearBoth">
+        </div>
+        
+        <div class="BotonesCabecera">
+          
+        </div>
+
+    </div>
+</div>
+                
+                    <div id="dvContenidoMaster" class="Contenido">
+                      <form method="post" action="./Premios.aspx?tipoLot=LOTERIA+PASIVA" id="aspnetForm">
+<div>
+<input type="hidden" name="__VIEWSTATE" id="__VIEWSTATE" value="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AgEPDxYCHwgFATRkZAICDw8WAh8IBQE4ZGQCAg9kFgZmD2QWAmYPFQEwPGFiYnIgdGl0bGU9IlRlcm1pbmFsIHB1bnRvIGRlIHZlbnRhIj5UUFY8L2FiYnI+ZAIBDw8WAh8IBQEwZGQCAg8PFgIfCAUBMGRkAgMPZBYGZg9kFgJmDxUBBEJPTk9kAgEPDxYCHwgFATBkZAICDw8WAh8IBQEwZGQCBA9kFgZmD2QWAmYPFQGDATxhYmJyIHRpdGxlPSJSZXN1bHRhZG8iPlIuPC9hYmJyPiA8YWJiciB0aXRsZT0iw7psdGltYSI+PGFiYnIgdGl0bGU9IsO6bHRpbWEiPjxhYmJyIHRpdGxlPSLDumx0aW1hIj51bHQuIDwvYWJicj48L2FiYnI+PC9hYmJyPmNpZnJhZAIBDw8WAh8IBQE0ZGQCAg8PFgIfCAUBOGRkAgUPDxYCHwBoZGQCBA8PFgIfCAUBNGRkAgUPDxYCHwgFAThkZAIZDw8WAh8AaGRkAhMPFgQfAWUfAGhkAgkPZBYKZg8WAh8CBS1odHRwczovL3BvcnRhbC5vbmNlLmVzL2VtcGxlYWRvL2FjY2VzaWJpbGlkYWRkAgEPFgIfAgU2aHR0cHM6Ly9wb3J0YWwub25jZS5lcy9lbXBsZWFkby9wb2xpdGljYS1kZS1wcml2YWNpZGFkZAICDxYCHwIFDy4uL01hcGFXZWIuYXNweGQCAw8WAh8BBQQyMDI2ZAIEDxYCHwEFBjEuMi4yMWQCCw8WAh8AaGQCDQ8WAh8AaGQYGgU2Y3RsMDAkQ29udGVudFBsYWNlSG9sZGVyMSRndndQcmVtaW9zJGN0bDE5JGd2d0RldGFsbGVzDzwrAAwBCAIBZAU2Y3RsMDAkQ29udGVudFBsYWNlSG9sZGVyMSRndndQcmVtaW9zJGN0bDAzJGd2d0RldGFsbGVzDzwrAAwBCAIBZAU2Y3RsMDAkQ29udGVudFBsYWNlSG9sZGVyMSRndndQcmVtaW9zJGN0bDExJGd2d0RldGFsbGVzDzwrAAwBCAIBZAU2Y3RsMDAkQ29udGVudFBsYWNlSG9sZGVyMSRndndQcmVtaW9zJGN0bDEyJGd2d0RldGFsbGVzDzwrAAwBCAIBZAU2Y3RsMDAkQ29udGVudFBsYWNlSG9sZGVyMSRndndQcmVtaW9zJGN0bDE4JGd2d0RldGFsbGVzDzwrAAwBCAIBZAU2Y3RsMDAkQ29udGVudFBsYWNlSG9sZGVyMSRndndQcmVtaW9zJGN0bDA2JGd2d0RldGFsbGVzDzwrAAwBCAIBZAUkY3RsMDAkQ29udGVudFBsYWNlSG9sZGVyMSRndndQcmVtaW9zDzwrAAwBCAIBZAU2Y3RsMDAkQ29udGVudFBsYWNlSG9sZGVyMSRndndQcmVtaW9zJGN0bDAyJGd2d0RldGFsbGVzDzwrAAwBCAIBZAU2Y3RsMDAkQ29udGVudFBsYWNlSG9sZGVyMSRndndQcmVtaW9zJGN0bDE3JGd2d0RldGFsbGVzDzwrAAwBCAIBZAU2Y3RsMDAkQ29udGVudFBsYWNlSG9sZGVyMSRndndQcmVtaW9zJGN0bDEwJGd2d0RldGFsbGVzDzwrAAwBCAIBZAU2Y3RsMDAkQ29udGVudFBsYWNlSG9sZGVyMSRndndQcmVtaW9zJGN0bDE0JGd2d0RldGFsbGVzDzwrAAwBCAIBZAU2Y3RsMDAkQ29udGVudFBsYWNlSG9sZGVyMSRndndQcmVtaW9zJGN0bDEzJGd2d0RldGFsbGVzDzwrAAwBCAIBZAU2Y3RsMDAkQ29udGVudFBsYWNlSG9sZGVyMSRndndQcmVtaW9zJGN0bDIyJGd2d0RldGFsbGVzDzwrAAwBCAIBZAU2Y3RsMDAkQ29udGVudFBsYWNlSG9sZGVyMSRndndQcmVtaW9zJGN0bDIxJGd2d0RldGFsbGVzDzwrAAwBCAIBZAUeX19Db250cm9sc1JlcXVpcmVQb3N0QmFja0tleV9fFgEFKGN0bDAwJENvbnRlbnRQbGFjZUhvbGRlcjEkY2hrR3JpZEFuaWRhZG8FNmN0bDAwJENvbnRlbnRQbGFjZUhvbGRlcjEkZ3Z3UHJlbWlvcyRjdGwxNSRndndEZXRhbGxlcw88KwAMAQgCAWQFNmN0bDAwJENvbnRlbnRQbGFjZUhvbGRlcjEkZ3Z3UHJlbWlvcyRjdGwxNiRndndEZXRhbGxlcw88KwAMAQgCAWQFNmN0bDAwJENvbnRlbnRQbGFjZUhvbGRlcjEkZ3Z3UHJlbWlvcyRjdGwwOSRndndEZXRhbGxlcw88KwAMAQgCAWQFNmN0bDAwJENvbnRlbnRQbGFjZUhvbGRlcjEkZ3Z3UHJlbWlvcyRjdGwwOCRndndEZXRhbGxlcw88KwAMAQgCAWQFNmN0bDAwJENvbnRlbnRQbGFjZUhvbGRlcjEkZ3Z3UHJlbWlvcyRjdGwyNSRndndEZXRhbGxlcw88KwAMAQgCAWQFNmN0bDAwJENvbnRlbnRQbGFjZUhvbGRlcjEkZ3Z3UHJlbWlvcyRjdGwyNCRndndEZXRhbGxlcw88KwAMAQgCAWQFNmN0bDAwJENvbnRlbnRQbGFjZUhvbGRlcjEkZ3Z3UHJlbWlvcyRjdGwwNSRndndEZXRhbGxlcw88KwAMAQgCAWQFNmN0bDAwJENvbnRlbnRQbGFjZUhvbGRlcjEkZ3Z3UHJlbWlvcyRjdGwyMCRndndEZXRhbGxlcw88KwAMAQgCAWQFNmN0bDAwJENvbnRlbnRQbGFjZUhvbGRlcjEkZ3Z3UHJlbWlvcyRjdGwwNCRndndEZXRhbGxlcw88KwAMAQgCAWQFNmN0bDAwJENvbnRlbnRQbGFjZUhvbGRlcjEkZ3Z3UHJlbWlvcyRjdGwyMyRndndEZXRhbGxlcw88KwAMAQgCAWQFNmN0bDAwJENvbnRlbnRQbGFjZUhvbGRlcjEkZ3Z3UHJlbWlvcyRjdGwwNyRndndEZXRhbGxlcw88KwAMAQgCAWR7sHgjdG2u/6SSkd3XSZoQcrJxLA==">
+</div>
+
+<div>
+
+	<input type="hidden" name="__VIEWSTATEGENERATOR" id="__VIEWSTATEGENERATOR" value="7731299A">
+</div>
+                          <div id="ctl00_desktopMenu" class="menu-wrap">
+                               <h2 id="h2Menu" class="element-invisible">Menú principal</h2>
+                               <div id="menu">
+<ul id="menulista" aria-label="Menú principal" class="ui-menu ui-widget ui-widget-content">
+	<li class="ui-menu-item" id="li_1_Datos-personales">
+		<a id="lnkMenu_1_Datos-personales" href="#" aria-expanded="false" aria-haspopup="menu">Datos personales <i id="i_Datos-personales" class="fa fa-chevron-down" aria-hidden="true"></i></a>
+
+		<ul class="ui-menu" id="Submenu_2_Datos-personales" style="display: none" aria-label="Submenú Datos personales">
+			<li class="ui-menu-item">
+				<a id="lnkMenu_2_Datos-personales" href="https://portal.once.es/GestionLaboralNomina/Datos Personales/InformacionPersonal.aspx">Acerca de Datos personales</a></li>
+			<li class="ui-menu-item" id="li_2_Información-personal">
+				<a id="lnkMenu_2_Información-personal" href="https://portal.once.es/GestionLaboralNomina/Datos Personales/DatosPersonales.aspx">Información personal</a>
+			</li>
+			<li class="ui-menu-item" id="li_2_Clasificación-profesional">
+				<a id="lnkMenu_2_Clasificación-profesional" href="https://portal.once.es/GestionLaboralNomina/Datos Personales/ClasificacionProfesional.aspx">Clasificación profesional</a>
+			</li>
+			<li class="ui-menu-item" id="li_2_Datos-bancarios">
+				<a id="lnkMenu_2_Datos-bancarios" href="https://portal.once.es/GestionLaboralNomina/Datos Personales/DatosBancarios.aspx">Datos bancarios</a>
+			</li>
+			<li class="ui-menu-item" id="li_2_Datos-fiscales">
+				<a id="lnkMenu_2_Datos-fiscales" href="https://portal.once.es/GestionLaboralNomina/Datos Personales/DatosFiscales.aspx">Datos fiscales</a>
+			</li>
+			<li class="ui-menu-item" id="li_2_Historial-laboral">
+				<a id="lnkMenu_2_Historial-laboral" href="https://portal.once.es/GestionLaboralNomina/Datos Personales/HistorialLaboral.aspx">Historial laboral</a>
+			</li>
+			<li class="ui-menu-item" id="li_2_Historial-formativo-ONCE">
+				<a id="lnkMenu_2_Historial-formativo-ONCE" href="https://portal.once.es/GestionLaboralNomina/Datos Personales/HistorialFormativo.aspx">Historial formativo ONCE</a>
+			</li>
+		</ul>
+	</li>
+	<li class="ui-menu-item" id="li_1_Nómina">
+		<a id="lnkMenu_1_Nómina" href="https://portal.once.es/GestionLaboralNomina/Nominas/SeleccionRecibo.aspx">Nómina</a>
+	</li>
+	<li class="ui-menu-item" id="li_1_Trámites">
+		<a id="lnkMenu_1_Trámites" href="#" aria-expanded="false" aria-haspopup="menu">Trámites <i id="i_Trámites" class="fa fa-chevron-down" aria-hidden="true"></i></a>
+
+		<ul class="ui-menu" id="Submenu_2_Trámites" style="display: none" aria-label="Submenú Trámites">
+			<li class="ui-menu-item">
+				<a id="lnkMenu_2_Trámites" href="https://portal.once.es/GestionLaboralNomina/Tramites/Tramites.aspx">Acerca de Trámites</a></li>
+			<li class="ui-menu-item" id="li_2_Solicitud-de-modificación-de-datos-identificativos-y-de-contacto">
+				<a id="lnkMenu_2_Solicitud-de-modificación-de-datos-identificativos-y-de-contacto" href="https://portal.once.es/GestionLaboralNomina/Tramites/modificardatospersonales.aspx">Solicitud de modificación de datos identificativos y de contacto</a>
+			</li>
+			<li class="ui-menu-item" id="li_2_Solicitud-de-modificación-de-datos-bancarios-de-nómina">
+				<a id="lnkMenu_2_Solicitud-de-modificación-de-datos-bancarios-de-nómina" href="https://portal.once.es/GestionLaboralNomina/Tramites/modificardatosbancarios.aspx">Solicitud de modificación de datos bancarios de nómina</a>
+			</li>
+			<li class="ui-menu-item" id="li_2_Solicitud-de-variación-de-porcentaje-IRPF">
+				<a id="lnkMenu_2_Solicitud-de-variación-de-porcentaje-IRPF" href="https://portal.once.es/GestionLaboralNomina/Tramites/SolicitudCambioIRPF.aspx">Solicitud de variación de porcentaje IRPF</a>
+			</li>
+			<li class="ui-menu-item" id="li_2_Solicitud-de-anticipo-de-nómina">
+				<a id="lnkMenu_2_Solicitud-de-anticipo-de-nómina" href="https://portal.once.es/GestionLaboralNomina/Tramites/solicitudanticiponomina.aspx">Solicitud de anticipo de nómina</a>
+			</li>
+			<li class="ui-menu-item" id="li_2_Solicitud-de-anulación-de-asuntos-particulares">
+				<a id="lnkMenu_2_Solicitud-de-anulación-de-asuntos-particulares" href="https://portal.once.es/GestionLaboralNomina/Tramites/SolicitudAnulacionAP.aspx">Solicitud de anulación de asuntos particulares</a>
+			</li>
+			<li class="ui-menu-item" id="li_2_Solicitud-de-asuntos-particulares">
+				<a id="lnkMenu_2_Solicitud-de-asuntos-particulares" href="https://portal.once.es/GestionLaboralNomina/Tramites/solicitudvacaciones.aspx">Solicitud de asuntos particulares</a>
+			</li>
+			<li class="ui-menu-item" id="li_2_Solicitud-de-vacaciones">
+				<a id="lnkMenu_2_Solicitud-de-vacaciones" href="https://portal.once.es/GestionLaboralNomina/Tramites/VacacionesVendedor.aspx">Solicitud de vacaciones</a>
+			</li>
+			<li class="ui-menu-item" id="li_2_Permiso-retribuido-especial-antigüedad-(11/22-años)">
+				<a id="lnkMenu_2_Permiso-retribuido-especial-antigüedad-(11/22-años)" href="https://portal.once.es/GestionLaboralNomina/Tramites/PermisoAntiguedad.aspx">Permiso retribuido especial antigüedad (11/22 años)</a>
+			</li>
+			<li class="ui-menu-item" id="li_2_Solicitud-de-permisos,-excedencias-y-licencias">
+				<a id="lnkMenu_2_Solicitud-de-permisos,-excedencias-y-licencias" href="https://portal.once.es/GestionLaboralNomina/Tramites/solicitudExcedencia.aspx">Solicitud de permisos, excedencias y licencias</a>
+			</li>
+			<li class="ui-menu-item" id="li_2_Notificaciones-de-solicitudes">
+				<a id="lnkMenu_2_Notificaciones-de-solicitudes" href="https://portal.once.es/GestionLaboralNomina/Tramites/NotificacionSolicitudes.aspx">Notificaciones de solicitudes</a>
+			</li>
+		</ul>
+	</li>
+	<li class="ui-menu-item" id="li_1_Consultas">
+		<a id="lnkMenu_1_Consultas" href="#" aria-expanded="false" aria-haspopup="menu">Consultas <i id="i_Consultas" class="fa fa-chevron-down" aria-hidden="true"></i></a>
+
+		<ul class="ui-menu" id="Submenu_2_Consultas" style="display: none" aria-label="Submenú Consultas">
+			<li class="ui-menu-item">
+				<a id="lnkMenu_2_Consultas" href="https://portal.once.es/GestionLaboralNomina/Consultas/Consultas.aspx">Acerca de Consultas</a></li>
+			<li class="ui-menu-item" id="li_2_Consulta-de-incidencias">
+				<a id="lnkMenu_2_Consulta-de-incidencias" href="https://portal.once.es/GestionLaboralNomina/Consultas/ResumenIncidencias.aspx">Consulta de incidencias</a>
+			</li>
+			<li class="ui-menu-item" id="li_2_Consulta-de-registro-de-jornada">
+				<a id="lnkMenu_2_Consulta-de-registro-de-jornada" href="https://portal.once.es/GestionLaboralNomina/Consultas/ConsultaMarcajes.aspx">Consulta de registro de jornada</a>
+			</li>
+			<li class="ui-menu-item" id="li_2_Consulta-de-solicitudes">
+				<a id="lnkMenu_2_Consulta-de-solicitudes" href="https://portal.once.es/GestionLaboralNomina/Consultas/consultasolicitudes.aspx">Consulta de solicitudes</a>
+			</li>
+			<li class="ui-menu-item" id="li_2_Consulta-del-certificado-de-haberes-y-retenciones-(IRPF)">
+				<a id="lnkMenu_2_Consulta-del-certificado-de-haberes-y-retenciones-(IRPF)" href="https://portal.once.es/GestionLaboralNomina/Nominas/SeleccionIRPF.aspx">Consulta del certificado de haberes y retenciones (IRPF)</a>
+			</li>
+			<li class="ui-menu-item" id="li_2_Consulta-del-Modelo-145-Comunicación-de-datos-al-pagador">
+				<a id="lnkMenu_2_Consulta-del-Modelo-145-Comunicación-de-datos-al-pagador" href="https://portal.once.es/GestionLaboralNomina/Consultas/Modelo145.aspx">Consulta del Modelo 145 Comunicación de datos al pagador</a>
+			</li>
+		</ul>
+	</li>
+	<li class="ui-menu-item" id="li_1_Currículum">
+		<a id="lnkMenu_1_Currículum" href="#" aria-expanded="false" aria-haspopup="menu">Currículum <i id="i_Currículum" class="fa fa-chevron-down" aria-hidden="true"></i></a>
+
+		<ul class="ui-menu" id="Submenu_2_Currículum" style="display: none" aria-label="Submenú Currículum">
+			<li class="ui-menu-item">
+				<a id="lnkMenu_2_Currículum" href="https://portal.once.es/GestionLaboralNomina/Curriculum/gestioncurriculum.aspx">Acerca de Currículum</a></li>
+			<li class="ui-menu-item" id="li_2_Currículum-en-PDF">
+				<a id="lnkMenu_2_Currículum-en-PDF" href="https://portal.once.es/GestionLaboralNomina/Curriculum/consultacurriculum.aspx">Currículum en PDF</a>
+			</li>
+			<li class="ui-menu-item" id="li_2_Editar-currículum">
+				<a id="lnkMenu_2_Editar-currículum" href="https://portal.once.es/GestionLaboralNomina/Curriculum/modificarcurriculum.aspx">Editar currículum</a>
+			</li>
+		</ul>
+	</li>
+	<li class="ui-menu-item" id="li_1_Oficina-virtual-vendedor">
+		<a id="lnkMenu_1_Oficina-virtual-vendedor" href="#" aria-expanded="false" aria-haspopup="menu">Oficina virtual vendedor <i id="i_Oficina-virtual-vendedor" class="fa fa-chevron-down" aria-hidden="true"></i></a>
+
+		<ul class="ui-menu" id="Submenu_2_Oficina-virtual-vendedor" style="display: none" aria-label="Submenú Oficina virtual vendedor">
+			<li class="ui-menu-item">
+				<a id="lnkMenu_2_Oficina-virtual-vendedor" href="https://portal.once.es/GestionLaboralNomina/JuegosONCE/Control.aspx">Acerca de Oficina virtual vendedor</a></li>
+			<li class="ui-menu-item" id="li_2_Control-de-Retirada">
+				<a id="lnkMenu_2_Control-de-Retirada" href="https://portal.once.es/GestionLaboralNomina/JuegosONCE/ControlPaquete.aspx">Control de Retirada</a>
+			</li>
+			<li class="ui-menu-item" id="li_2_Control-de-almacén-de-lotería-instantánea">
+				<a id="lnkMenu_2_Control-de-almacén-de-lotería-instantánea" href="https://portal.once.es/GestionLaboralNomina/JuegosONCE/Almacen.aspx">Control de almacén de lotería instantánea</a>
+			</li>
+			<li class="ui-menu-item" id="li_2_Consulta-de-premios-repartidos">
+				<a id="lnkMenu_2_Consulta-de-premios-repartidos" href="https://portal.once.es/GestionLaboralNomina/JuegosONCE/Premios.aspx">Consulta de premios repartidos</a>
+			</li>
+			<li class="ui-menu-item" id="li_2_Comisiones">
+				<a id="lnkMenu_2_Comisiones" href="https://portal.once.es/GestionLaboralNomina/Vendedores/comisiones.aspx">Comisiones</a>
+			</li>
+			<li class="ui-menu-item" id="li_2_Simulación-de-comisiones">
+				<a id="lnkMenu_2_Simulación-de-comisiones" href="https://portal.once.es/GestionLaboralNomina/Vendedores/ConsultaSimulacion.aspx">Simulación de comisiones</a>
+			</li>
+			<li class="ui-menu-item" id="li_2_Estadísticas-de-venta">
+				<a id="lnkMenu_2_Estadísticas-de-venta" href="https://portal.once.es/GestionLaboralNomina/Vendedores/estadisticasventa.aspx">Estadísticas de venta</a>
+			</li>
+			<li class="ui-menu-item" id="li_2_Liquidación">
+				<a id="lnkMenu_2_Liquidación" href="#" aria-expanded="false" aria-haspopup="menu">Liquidación <i id="i_Liquidación" class="fa fa-chevron-down" aria-hidden="true"></i></a>
+
+			<ul class="ui-menu" id="Submenu_3_Liquidación" style="display: none" aria-label="Submenú Liquidación">
+				<li class="ui-menu-item">
+					<a id="lnkMenu_3_Liquidación" href="https://portal.once.es/GestionLaboralNomina/Vendedores/IngresoACuenta/Liquidacion.aspx">Acerca de Liquidación</a></li>
+				<li class="ui-menu-item" id="li_3_Ingresos-a-cuenta-producto">
+					<a id="lnkMenu_3_Ingresos-a-cuenta-producto" href="https://portal.once.es/GestionLaboralNomina/Vendedores/IngresoACuenta/IngresosCuentaProducto.aspx">Ingresos a cuenta producto</a>
+				</li>
+				<li class="ui-menu-item" id="li_3_Informes-ingreso-a-cuenta-producto">
+					<a id="lnkMenu_3_Informes-ingreso-a-cuenta-producto" href="#" aria-expanded="false" aria-haspopup="menu">Informes ingreso a cuenta producto <i id="i_Informes-ingreso-a-cuenta-producto" class="fa fa-chevron-down" aria-hidden="true"></i></a>
+
+				<ul class="ui-menu" id="Submenu_4_Informes-ingreso-a-cuenta-producto" style="display: none" aria-label="Submenú Informes ingreso a cuenta producto">
+					<li class="ui-menu-item">
+						<a id="lnkMenu_4_Informes-ingreso-a-cuenta-producto" href="https://portal.once.es/GestionLaboralNomina/Vendedores/IngresoACuenta/InformesLiquidacion/Informes.aspx">Acerca de Informes ingreso a cuenta producto</a></li>
+					<li class="ui-menu-item" id="li_4_Informe-de-ingresos-por-fecha">
+						<a id="lnkMenu_4_Informe-de-ingresos-por-fecha" href="https://portal.once.es/GestionLaboralNomina/Vendedores/IngresoACuenta/InformesLiquidacion/InformeIngresosPorFechas.aspx">Informe de ingresos por fecha</a>
+					</li>
+					<li class="ui-menu-item" id="li_4_Informe-de-ingresos-cuenta-producto">
+						<a id="lnkMenu_4_Informe-de-ingresos-cuenta-producto" href="https://portal.once.es/GestionLaboralNomina/Vendedores/IngresoACuenta/InformesLiquidacion/InformeIngresosPorProducto.aspx">Informe de ingresos cuenta producto</a>
+					</li>
+				</ul>
+				</li>
+				<li class="ui-menu-item" id="li_3_Informe-liquidación-diaria">
+					<a id="lnkMenu_3_Informe-liquidación-diaria" href="https://portal.once.es/GestionLaboralNomina/Vendedores/IngresoACuenta/InformeLiquidacionDiaria.aspx">Informe liquidación diaria</a>
+				</li>
+			</ul>
+			</li>
+			<li class="ui-menu-item" id="li_2_Consulta-de-asignación-de-punto-de-venta">
+				<a id="lnkMenu_2_Consulta-de-asignación-de-punto-de-venta" href="https://portal.once.es/GestionLaboralNomina/Vendedores/AnexoVendedor.aspx">Consulta de asignación de punto de venta</a>
+			</li>
+			<li class="ui-menu-item" id="li_2_Publicación-de-plazas-por-municipios">
+				<a id="lnkMenu_2_Publicación-de-plazas-por-municipios" href="https://portal.once.es/GestionLaboralNomina/Vendedores/PublicacionPlazas.aspx">Publicación de plazas por municipios</a>
+			</li>
+		</ul>
+	</li>
+	<li class="ui-menu-item" id="li_1_Otros-documentos">
+		<a id="lnkMenu_1_Otros-documentos" href="https://portal.once.es/GestionLaboralNomina/OtrosDocumentos/OtrosDocumentos.aspx">Otros documentos</a>
+	</li>
+	<li class="ui-menu-item" id="li_1_Clave-de-acceso">
+		<a id="lnkMenu_1_Clave-de-acceso" href="#" aria-expanded="false" aria-haspopup="menu">Clave de acceso <i id="i_Clave-de-acceso" class="fa fa-chevron-down" aria-hidden="true"></i></a>
+
+		<ul class="ui-menu" id="Submenu_2_Clave-de-acceso" style="display: none" aria-label="Submenú Clave de acceso">
+			<li class="ui-menu-item">
+				<a id="lnkMenu_2_Clave-de-acceso" href="https://portal.once.es/GestionLaboralNomina/Seguridad/GestionContrasenia.aspx">Acerca de Clave de acceso</a></li>
+			<li class="ui-menu-item" id="li_2_Cambio-de-clave-segura">
+				<a id="lnkMenu_2_Cambio-de-clave-segura" href="https://portal.once.es/GestionLaboralNomina/Seguridad/CambioContrasenia.aspx">Cambio de clave segura</a>
+			</li>
+			<li class="ui-menu-item" id="li_2_Modificación-pregunta-personal-de-seguridad">
+				<a id="lnkMenu_2_Modificación-pregunta-personal-de-seguridad" href="https://portal.once.es/GestionLaboralNomina/Seguridad/PreguntaSeguridad.aspx">Modificación pregunta personal de seguridad</a>
+			</li>
+		</ul>
+	</li>
+</ul>
+</div>
+                          </div>
+
+                          
+
+<script type="text/javascript" src="../JScript/JuegosONCE/Premios.js"></script>
+
+<div id="ctl00_ContentPlaceHolder1_RastroPag" class="Rastro">
+	<span class="TextoIniRastro">Estás en: </span>
+	<ul>
+		<li><span><a href="../Bienvenido.aspx">Inicio</a></span></li>
+		<li><span><a href="Control.aspx">Oficina virtual del vendedor</a></span></li>
+		<li class="lastitem"><span>Consulta de premios repartidos</span></li>
+	</ul>    
+</div>
+
+
+<div class="content AlineaIzq">
+    <div id="dvSaltoCont" class="Linea"><h1 tabindex="-1" id="SaltoCont">Consulta de premios repartidos</h1></div>    
+    <div id="ctl00_ContentPlaceHolder1_dvError" class="margenSup"></div>
+     <!-- Contenido -->
+    <div id="ctl00_ContentPlaceHolder1_dvContenido">                
+        <div id="ctl00_ContentPlaceHolder1_dvIntroduccion" class="margen-abajo-1em"><p>En esta página podrás consultar los premios que has repartido en los últimos 30 días. Selecciona una de las familias de juegos para poder comprobarlos:</p></div>
+
+            
+         <ul class="formTabs margen-abajo-2em">
+            <li id="ctl00_ContentPlaceHolder1_hrLotPasiva" class="selected">
+                <a href="../JuegosONCE/Premios.aspx?tipoLot=LOTERIA PASIVA" title="Premios repartidos lotería pasiva">
+                    <span id="ctl00_ContentPlaceHolder1_spLotPasiva">PASIVA</span>
+                </a>
+            </li>
+            <li id="ctl00_ContentPlaceHolder1_hrLotActiva">
+                <a href="../JuegosONCE/Premios.aspx?tipoLot=LOTERIA ACTIVA" title="Premios repartidos lotería activa">
+                    <span id="ctl00_ContentPlaceHolder1_spLotActiva">ACTIVA</span>
+                </a>
+            </li>
+            <li id="ctl00_ContentPlaceHolder1_hrLotInstantanea">
+                <a href="../JuegosONCE/Premios.aspx?tipoLot=LOTERIA INSTANTANEA" title="Premios repartidos lotería instantánea">
+                    <span id="ctl00_ContentPlaceHolder1_spLotInstantanea">INSTANTÁNEA</span>
+                </a>
+            </li>
+         </ul>
+        
+         <div id="ctl00_ContentPlaceHolder1_dvTipoLoteria">
+           <h2 id="ctl00_ContentPlaceHolder1_dvTipoLotH2" class="fuenteNegrita">PASIVA</h2>
+           <!--<input name="ctl00$ContentPlaceHolder1$trTipoLoteria" type="text" id="ctl00_ContentPlaceHolder1_trTipoLoteria" />-->
+         </div> 
+         
+                
+        <div id="ctl00_ContentPlaceHolder1_dvTablaLoteria"></div>
+
+        <label id="lblCheckVisualizarTablasAnidadas" title="Marca esta casilla si deseas visualizar el contenido de las tablas anidadas en una única página.">
+            <!-- <input type="checkbox" id="chkGridAnidado" title="Marca esta casilla si deseas visualizar el contenido de las tablas anidadas en una única página." onclick="HideSubgrids()" />Visualizar tablas anidadas -->
+            <span class="checkbox-line input-focus" title="Marca esta casilla si deseas visualizar el contenido de las tablas anidadas en una única página."><input id="chkGridAnidado" type="checkbox" name="ctl00$ContentPlaceHolder1$chkGridAnidado"><label for="chkGridAnidado">Visualizar tablas anidadas</label></span>
+        </label>
+        <br>
+                    
+        <div>
+	<table class="Tabla minwidth60 margenSupContenidos" cellspacing="0" rules="all" border="1" id="gvwPremios" style="border-collapse:collapse;">
+		<caption>
+			Premios repartidos lotería pasiva
+		</caption><tbody><tr>
+			<th scope="col">FECHA - JUEGO - CATEGORÍA</th><th class="Centrar" scope="col">CANTIDAD (unidades)</th><th class="Centrar" scope="col">IMPORTE TOTAL CATEGORÍA (€)</th>
+		</tr><tr>
+			<th>                                
+                                <a id="lnkPremio_id7e58f367c232499f86e81e20c2f1accb" href="javascript:;" headertext="Fecaha">05-07 - FIN DE SEMANA - Reintegros
+                                    <img id="imgProducto" alt="Mostrar detalle premio" style="cursor: pointer" src="../Imagenes/mas.png" title="Mostrar detalle del premio">
+                                </a>     
+                                
+                                
+                                <div id="pnlDetalle_id7e58f367c232499f86e81e20c2f1accb" style="display: none">
+				
+                                    <div class="subtabla">
+					                    <div>
+					<table class="Tabla ancho100x100" cellspacing="0" rules="all" border="1" id="gvwDetalles" style="border-collapse:collapse;">
+						<caption>
+							Detalle del premio: 05-07 - FIN DE SEMANA - Reintegros
+						</caption><tbody><tr>
+							<th class="Centrar" scope="col">CATEGORÍA</th><th class="Centrar" scope="col">CANTIDAD</th><th class="Centrar" scope="col">IMPORTE TOTAL (€)</th>
+						</tr><tr>
+							<th>
+                                                        Tradicional
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">5</td><td class="AlineaDer espacioCol centrado">10</td>
+						</tr><tr>
+							<th>
+                                                        <abbr title="Terminal punto de venta">TPV</abbr>
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">1</td><td class="AlineaDer espacioCol centrado">2</td>
+						</tr><tr>
+							<th>
+                                                        BONO
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">0</td><td class="AlineaDer espacioCol centrado">0</td>
+						</tr><tr>
+							<th>
+                                                        <abbr title="Resultado">R.</abbr> <abbr title="última"><abbr title="última"><abbr title="última">ult. </abbr></abbr></abbr>cifra
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">6</td><td class="AlineaDer espacioCol centrado">12</td>
+						</tr>
+					</tbody></table>
+				</div>											
+				                    </div>
+                                
+			</div>
+
+                            </th><td class="Centrar">6</td><td class="Centrar">12</td>
+		</tr><tr>
+			<th>                                
+                                <a id="lnkPremio_id3ab84b27bc944497b0e858fd6f70c4ff" href="javascript:;" headertext="Fecaha">04-07 - FIN DE SEMANA - Reintegros
+                                    <img id="imgProducto" alt="Mostrar detalle premio" style="cursor: pointer" src="../Imagenes/mas.png" title="Mostrar detalle del premio">
+                                </a>     
+                                
+                                
+                                <div id="pnlDetalle_id3ab84b27bc944497b0e858fd6f70c4ff" style="display: none">
+				
+                                    <div class="subtabla">
+					                    <div>
+					<table class="Tabla ancho100x100" cellspacing="0" rules="all" border="1" id="gvwDetalles" style="border-collapse:collapse;">
+						<caption>
+							Detalle del premio: 04-07 - FIN DE SEMANA - Reintegros
+						</caption><tbody><tr>
+							<th class="Centrar" scope="col">CATEGORÍA</th><th class="Centrar" scope="col">CANTIDAD</th><th class="Centrar" scope="col">IMPORTE TOTAL (€)</th>
+						</tr><tr>
+							<th>
+                                                        Tradicional
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">2</td><td class="AlineaDer espacioCol centrado">4</td>
+						</tr><tr>
+							<th>
+                                                        <abbr title="Terminal punto de venta">TPV</abbr>
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">0</td><td class="AlineaDer espacioCol centrado">0</td>
+						</tr><tr>
+							<th>
+                                                        BONO
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">0</td><td class="AlineaDer espacioCol centrado">0</td>
+						</tr><tr>
+							<th>
+                                                        <abbr title="Resultado">R.</abbr> <abbr title="última"><abbr title="última"><abbr title="última">ult. </abbr></abbr></abbr>cifra
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">2</td><td class="AlineaDer espacioCol centrado">4</td>
+						</tr>
+					</tbody></table>
+				</div>											
+				                    </div>
+                                
+			</div>
+
+                            </th><td class="Centrar">2</td><td class="Centrar">4</td>
+		</tr><tr>
+			<th>                                
+                                <a id="lnkPremio_id3047af646d114633b45e58049aa1c922" href="javascript:;" headertext="Fecaha">03-07 - CUPONAZO - Reintegros
+                                    <img id="imgProducto" alt="Mostrar detalle premio" style="cursor: pointer" src="../Imagenes/mas.png" title="Mostrar detalle del premio">
+                                </a>     
+                                
+                                
+                                <div id="pnlDetalle_id3047af646d114633b45e58049aa1c922" style="display: none">
+				
+                                    <div class="subtabla">
+					                    <div>
+					<table class="Tabla ancho100x100" cellspacing="0" rules="all" border="1" id="gvwDetalles" style="border-collapse:collapse;">
+						<caption>
+							Detalle del premio: 03-07 - CUPONAZO - Reintegros
+						</caption><tbody><tr>
+							<th class="Centrar" scope="col">CATEGORÍA</th><th class="Centrar" scope="col">CANTIDAD</th><th class="Centrar" scope="col">IMPORTE TOTAL (€)</th>
+						</tr><tr>
+							<th>
+                                                        Tradicional
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">5</td><td class="AlineaDer espacioCol centrado">15</td>
+						</tr><tr>
+							<th>
+                                                        <abbr title="Terminal punto de venta">TPV</abbr>
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">0</td><td class="AlineaDer espacioCol centrado">0</td>
+						</tr><tr>
+							<th>
+                                                        BONO
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">0</td><td class="AlineaDer espacioCol centrado">0</td>
+						</tr><tr>
+							<th>
+                                                        <abbr title="Resultado">R.</abbr> <abbr title="primera">prim. </abbr>cifra
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">0</td><td class="AlineaDer espacioCol centrado">0</td>
+						</tr><tr>
+							<th>
+                                                        <abbr title="Resultado">R.</abbr> <abbr title="última"><abbr title="última"><abbr title="última">ult. </abbr></abbr></abbr>cifra
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">5</td><td class="AlineaDer espacioCol centrado">15</td>
+						</tr>
+					</tbody></table>
+				</div>											
+				                    </div>
+                                
+			</div>
+
+                            </th><td class="Centrar">5</td><td class="Centrar">15</td>
+		</tr><tr>
+			<th>                                
+                                <a id="lnkPremio_idbc0cd8ef01674c12a2fb57eec2f2c427" href="javascript:;" headertext="Fecaha">02-07 - CUPÓN DIARIO - Reintegros
+                                    <img id="imgProducto" alt="Mostrar detalle premio" style="cursor: pointer" src="../Imagenes/mas.png" title="Mostrar detalle del premio">
+                                </a>     
+                                
+                                
+                                <div id="pnlDetalle_idbc0cd8ef01674c12a2fb57eec2f2c427" style="display: none">
+				
+                                    <div class="subtabla">
+					                    <div>
+					<table class="Tabla ancho100x100" cellspacing="0" rules="all" border="1" id="gvwDetalles" style="border-collapse:collapse;">
+						<caption>
+							Detalle del premio: 02-07 - CUPÓN DIARIO - Reintegros
+						</caption><tbody><tr>
+							<th class="Centrar" scope="col">CATEGORÍA</th><th class="Centrar" scope="col">CANTIDAD</th><th class="Centrar" scope="col">IMPORTE TOTAL (€)</th>
+						</tr><tr>
+							<th>
+                                                        Tradicional
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">5</td><td class="AlineaDer espacioCol centrado">10</td>
+						</tr><tr>
+							<th>
+                                                        <abbr title="Terminal punto de venta">TPV</abbr>
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">1</td><td class="AlineaDer espacioCol centrado">2</td>
+						</tr><tr>
+							<th>
+                                                        BONO
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">0</td><td class="AlineaDer espacioCol centrado">0</td>
+						</tr><tr>
+							<th>
+                                                        <abbr title="Resultado">R.</abbr> <abbr title="primera">prim. </abbr>cifra
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">1</td><td class="AlineaDer espacioCol centrado">2</td>
+						</tr><tr>
+							<th>
+                                                        <abbr title="Resultado">R.</abbr> <abbr title="última"><abbr title="última"><abbr title="última">ult. </abbr></abbr></abbr>cifra
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">5</td><td class="AlineaDer espacioCol centrado">10</td>
+						</tr>
+					</tbody></table>
+				</div>											
+				                    </div>
+                                
+			</div>
+
+                            </th><td class="Centrar">6</td><td class="Centrar">12</td>
+		</tr><tr>
+			<th>                                
+                                <a id="lnkPremio_id889f8ccf20c84fcba713645ff909c55a" href="javascript:;" headertext="Fecaha">01-07 - CUPÓN DIARIO - Reintegros
+                                    <img id="imgProducto" alt="Mostrar detalle premio" style="cursor: pointer" src="../Imagenes/mas.png" title="Mostrar detalle del premio">
+                                </a>     
+                                
+                                
+                                <div id="pnlDetalle_id889f8ccf20c84fcba713645ff909c55a" style="display: none">
+				
+                                    <div class="subtabla">
+					                    <div>
+					<table class="Tabla ancho100x100" cellspacing="0" rules="all" border="1" id="gvwDetalles" style="border-collapse:collapse;">
+						<caption>
+							Detalle del premio: 01-07 - CUPÓN DIARIO - Reintegros
+						</caption><tbody><tr>
+							<th class="Centrar" scope="col">CATEGORÍA</th><th class="Centrar" scope="col">CANTIDAD</th><th class="Centrar" scope="col">IMPORTE TOTAL (€)</th>
+						</tr><tr>
+							<th>
+                                                        Tradicional
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">1</td><td class="AlineaDer espacioCol centrado">2</td>
+						</tr><tr>
+							<th>
+                                                        <abbr title="Terminal punto de venta">TPV</abbr>
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">0</td><td class="AlineaDer espacioCol centrado">0</td>
+						</tr><tr>
+							<th>
+                                                        BONO
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">0</td><td class="AlineaDer espacioCol centrado">0</td>
+						</tr><tr>
+							<th>
+                                                        <abbr title="Resultado">R.</abbr> <abbr title="primera">prim. </abbr>cifra
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">0</td><td class="AlineaDer espacioCol centrado">0</td>
+						</tr><tr>
+							<th>
+                                                        <abbr title="Resultado">R.</abbr> <abbr title="última"><abbr title="última"><abbr title="última">ult. </abbr></abbr></abbr>cifra
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">1</td><td class="AlineaDer espacioCol centrado">2</td>
+						</tr>
+					</tbody></table>
+				</div>											
+				                    </div>
+                                
+			</div>
+
+                            </th><td class="Centrar">1</td><td class="Centrar">2</td>
+		</tr><tr>
+			<th>                                
+                                <a id="lnkPremio_ida4ce539649e84c54adfe476d8a4db3f0" href="javascript:;" headertext="Fecaha">27-06 - FIN DE SEMANA - Reintegros
+                                    <img id="imgProducto" alt="Mostrar detalle premio" style="cursor: pointer" src="../Imagenes/mas.png" title="Mostrar detalle del premio">
+                                </a>     
+                                
+                                
+                                <div id="pnlDetalle_ida4ce539649e84c54adfe476d8a4db3f0" style="display: none">
+				
+                                    <div class="subtabla">
+					                    <div>
+					<table class="Tabla ancho100x100" cellspacing="0" rules="all" border="1" id="gvwDetalles" style="border-collapse:collapse;">
+						<caption>
+							Detalle del premio: 27-06 - FIN DE SEMANA - Reintegros
+						</caption><tbody><tr>
+							<th class="Centrar" scope="col">CATEGORÍA</th><th class="Centrar" scope="col">CANTIDAD</th><th class="Centrar" scope="col">IMPORTE TOTAL (€)</th>
+						</tr><tr>
+							<th>
+                                                        Tradicional
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">5</td><td class="AlineaDer espacioCol centrado">10</td>
+						</tr><tr>
+							<th>
+                                                        <abbr title="Terminal punto de venta">TPV</abbr>
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">4</td><td class="AlineaDer espacioCol centrado">8</td>
+						</tr><tr>
+							<th>
+                                                        BONO
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">0</td><td class="AlineaDer espacioCol centrado">0</td>
+						</tr><tr>
+							<th>
+                                                        <abbr title="Resultado">R.</abbr> <abbr title="última"><abbr title="última"><abbr title="última">ult. </abbr></abbr></abbr>cifra
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">9</td><td class="AlineaDer espacioCol centrado">18</td>
+						</tr>
+					</tbody></table>
+				</div>											
+				                    </div>
+                                
+			</div>
+
+                            </th><td class="Centrar">9</td><td class="Centrar">18</td>
+		</tr><tr>
+			<th>                                
+                                <a id="lnkPremio_id348fd3e99b2b4b17975d47beb6282c99" href="javascript:;" headertext="Fecaha">26-06 - CUPONAZO - 2 PC
+                                    <img id="imgProducto" alt="Mostrar detalle premio" style="cursor: pointer" src="../Imagenes/mas.png" title="Mostrar detalle del premio">
+                                </a>     
+                                
+                                
+                                <div id="pnlDetalle_id348fd3e99b2b4b17975d47beb6282c99" style="display: none">
+				
+                                    <div class="subtabla">
+					                    <div>
+					<table class="Tabla ancho100x100" cellspacing="0" rules="all" border="1" id="gvwDetalles" style="border-collapse:collapse;">
+						<caption>
+							Detalle del premio: 26-06 - CUPONAZO - 2 PC
+						</caption><tbody><tr>
+							<th class="Centrar" scope="col">CATEGORÍA</th><th class="Centrar" scope="col">CANTIDAD</th><th class="Centrar" scope="col">IMPORTE TOTAL (€)</th>
+						</tr><tr>
+							<th>
+                                                        Tradicional
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">5</td><td class="AlineaDer espacioCol centrado">30</td>
+						</tr><tr>
+							<th>
+                                                        <abbr title="Terminal punto de venta">TPV</abbr>
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">0</td><td class="AlineaDer espacioCol centrado">0</td>
+						</tr><tr>
+							<th>
+                                                        BONO
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">0</td><td class="AlineaDer espacioCol centrado">0</td>
+						</tr>
+					</tbody></table>
+				</div>											
+				                    </div>
+                                
+			</div>
+
+                            </th><td class="Centrar">5</td><td class="Centrar">30</td>
+		</tr><tr>
+			<th>                                
+                                <a id="lnkPremio_id301aece909d24d63ad27d1aa191abae9" href="javascript:;" headertext="Fecaha">25-06 - CUPÓN DIARIO - Reintegros
+                                    <img id="imgProducto" alt="Mostrar detalle premio" style="cursor: pointer" src="../Imagenes/mas.png" title="Mostrar detalle del premio">
+                                </a>     
+                                
+                                
+                                <div id="pnlDetalle_id301aece909d24d63ad27d1aa191abae9" style="display: none">
+				
+                                    <div class="subtabla">
+					                    <div>
+					<table class="Tabla ancho100x100" cellspacing="0" rules="all" border="1" id="gvwDetalles" style="border-collapse:collapse;">
+						<caption>
+							Detalle del premio: 25-06 - CUPÓN DIARIO - Reintegros
+						</caption><tbody><tr>
+							<th class="Centrar" scope="col">CATEGORÍA</th><th class="Centrar" scope="col">CANTIDAD</th><th class="Centrar" scope="col">IMPORTE TOTAL (€)</th>
+						</tr><tr>
+							<th>
+                                                        Tradicional
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">5</td><td class="AlineaDer espacioCol centrado">10</td>
+						</tr><tr>
+							<th>
+                                                        <abbr title="Terminal punto de venta">TPV</abbr>
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">2</td><td class="AlineaDer espacioCol centrado">4</td>
+						</tr><tr>
+							<th>
+                                                        BONO
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">0</td><td class="AlineaDer espacioCol centrado">0</td>
+						</tr><tr>
+							<th>
+                                                        <abbr title="Resultado">R.</abbr> <abbr title="primera">prim. </abbr>cifra
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">7</td><td class="AlineaDer espacioCol centrado">14</td>
+						</tr><tr>
+							<th>
+                                                        <abbr title="Resultado">R.</abbr> <abbr title="última"><abbr title="última"><abbr title="última">ult. </abbr></abbr></abbr>cifra
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">0</td><td class="AlineaDer espacioCol centrado">0</td>
+						</tr>
+					</tbody></table>
+				</div>											
+				                    </div>
+                                
+			</div>
+
+                            </th><td class="Centrar">7</td><td class="Centrar">14</td>
+		</tr><tr>
+			<th>                                
+                                <a id="lnkPremio_id5848ae51ac854ab6ab83198dd54f9cd3" href="javascript:;" headertext="Fecaha">24-06 - CUPÓN DIARIO - 2 PC
+                                    <img id="imgProducto" alt="Mostrar detalle premio" style="cursor: pointer" src="../Imagenes/mas.png" title="Mostrar detalle del premio">
+                                </a>     
+                                
+                                
+                                <div id="pnlDetalle_id5848ae51ac854ab6ab83198dd54f9cd3" style="display: none">
+				
+                                    <div class="subtabla">
+					                    <div>
+					<table class="Tabla ancho100x100" cellspacing="0" rules="all" border="1" id="gvwDetalles" style="border-collapse:collapse;">
+						<caption>
+							Detalle del premio: 24-06 - CUPÓN DIARIO - 2 PC
+						</caption><tbody><tr>
+							<th class="Centrar" scope="col">CATEGORÍA</th><th class="Centrar" scope="col">CANTIDAD</th><th class="Centrar" scope="col">IMPORTE TOTAL (€)</th>
+						</tr><tr>
+							<th>
+                                                        Tradicional
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">5</td><td class="AlineaDer espacioCol centrado">30</td>
+						</tr><tr>
+							<th>
+                                                        <abbr title="Terminal punto de venta">TPV</abbr>
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">0</td><td class="AlineaDer espacioCol centrado">0</td>
+						</tr><tr>
+							<th>
+                                                        BONO
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">0</td><td class="AlineaDer espacioCol centrado">0</td>
+						</tr>
+					</tbody></table>
+				</div>											
+				                    </div>
+                                
+			</div>
+
+                            </th><td class="Centrar">5</td><td class="Centrar">30</td>
+		</tr><tr>
+			<th>                                
+                                <a id="lnkPremio_idd963f1f8319547d9b98c758ba072d6fb" href="javascript:;" headertext="Fecaha">24-06 - CUPÓN DIARIO - Reintegros
+                                    <img id="imgProducto" alt="Mostrar detalle premio" style="cursor: pointer" src="../Imagenes/mas.png" title="Mostrar detalle del premio">
+                                </a>     
+                                
+                                
+                                <div id="pnlDetalle_idd963f1f8319547d9b98c758ba072d6fb" style="display: none">
+				
+                                    <div class="subtabla">
+					                    <div>
+					<table class="Tabla ancho100x100" cellspacing="0" rules="all" border="1" id="gvwDetalles" style="border-collapse:collapse;">
+						<caption>
+							Detalle del premio: 24-06 - CUPÓN DIARIO - Reintegros
+						</caption><tbody><tr>
+							<th class="Centrar" scope="col">CATEGORÍA</th><th class="Centrar" scope="col">CANTIDAD</th><th class="Centrar" scope="col">IMPORTE TOTAL (€)</th>
+						</tr><tr>
+							<th>
+                                                        Tradicional
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">5</td><td class="AlineaDer espacioCol centrado">10</td>
+						</tr><tr>
+							<th>
+                                                        <abbr title="Terminal punto de venta">TPV</abbr>
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">0</td><td class="AlineaDer espacioCol centrado">0</td>
+						</tr><tr>
+							<th>
+                                                        BONO
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">0</td><td class="AlineaDer espacioCol centrado">0</td>
+						</tr><tr>
+							<th>
+                                                        <abbr title="Resultado">R.</abbr> <abbr title="primera">prim. </abbr>cifra
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">0</td><td class="AlineaDer espacioCol centrado">0</td>
+						</tr><tr>
+							<th>
+                                                        <abbr title="Resultado">R.</abbr> <abbr title="última"><abbr title="última"><abbr title="última">ult. </abbr></abbr></abbr>cifra
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">5</td><td class="AlineaDer espacioCol centrado">10</td>
+						</tr>
+					</tbody></table>
+				</div>											
+				                    </div>
+                                
+			</div>
+
+                            </th><td class="Centrar">5</td><td class="Centrar">10</td>
+		</tr><tr>
+			<th>                                
+                                <a id="lnkPremio_id68bb2c75696d473fbe777cb7330ed277" href="javascript:;" headertext="Fecaha">21-06 - FIN DE SEMANA - Reintegros
+                                    <img id="imgProducto" alt="Mostrar detalle premio" style="cursor: pointer" src="../Imagenes/mas.png" title="Mostrar detalle del premio">
+                                </a>     
+                                
+                                
+                                <div id="pnlDetalle_id68bb2c75696d473fbe777cb7330ed277" style="display: none">
+				
+                                    <div class="subtabla">
+					                    <div>
+					<table class="Tabla ancho100x100" cellspacing="0" rules="all" border="1" id="gvwDetalles" style="border-collapse:collapse;">
+						<caption>
+							Detalle del premio: 21-06 - FIN DE SEMANA - Reintegros
+						</caption><tbody><tr>
+							<th class="Centrar" scope="col">CATEGORÍA</th><th class="Centrar" scope="col">CANTIDAD</th><th class="Centrar" scope="col">IMPORTE TOTAL (€)</th>
+						</tr><tr>
+							<th>
+                                                        Tradicional
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">1</td><td class="AlineaDer espacioCol centrado">2</td>
+						</tr><tr>
+							<th>
+                                                        <abbr title="Terminal punto de venta">TPV</abbr>
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">2</td><td class="AlineaDer espacioCol centrado">4</td>
+						</tr><tr>
+							<th>
+                                                        BONO
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">0</td><td class="AlineaDer espacioCol centrado">0</td>
+						</tr><tr>
+							<th>
+                                                        <abbr title="Resultado">R.</abbr> <abbr title="última"><abbr title="última"><abbr title="última">ult. </abbr></abbr></abbr>cifra
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">3</td><td class="AlineaDer espacioCol centrado">6</td>
+						</tr>
+					</tbody></table>
+				</div>											
+				                    </div>
+                                
+			</div>
+
+                            </th><td class="Centrar">3</td><td class="Centrar">6</td>
+		</tr><tr>
+			<th>                                
+                                <a id="lnkPremio_id21efe5a4b21e481e8def0c07399e2942" href="javascript:;" headertext="Fecaha">19-06 - CUPONAZO - 2C
+                                    <img id="imgProducto" alt="Mostrar detalle premio" style="cursor: pointer" src="../Imagenes/mas.png" title="Mostrar detalle del premio">
+                                </a>     
+                                
+                                
+                                <div id="pnlDetalle_id21efe5a4b21e481e8def0c07399e2942" style="display: none">
+				
+                                    <div class="subtabla">
+					                    <div>
+					<table class="Tabla ancho100x100" cellspacing="0" rules="all" border="1" id="gvwDetalles" style="border-collapse:collapse;">
+						<caption>
+							Detalle del premio: 19-06 - CUPONAZO - 2C
+						</caption><tbody><tr>
+							<th class="Centrar" scope="col">CATEGORÍA</th><th class="Centrar" scope="col">CANTIDAD</th><th class="Centrar" scope="col">IMPORTE TOTAL (€)</th>
+						</tr><tr>
+							<th>
+                                                        Tradicional
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">3</td><td class="AlineaDer espacioCol centrado">18</td>
+						</tr><tr>
+							<th>
+                                                        <abbr title="Terminal punto de venta">TPV</abbr>
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">0</td><td class="AlineaDer espacioCol centrado">0</td>
+						</tr><tr>
+							<th>
+                                                        BONO
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">0</td><td class="AlineaDer espacioCol centrado">0</td>
+						</tr>
+					</tbody></table>
+				</div>											
+				                    </div>
+                                
+			</div>
+
+                            </th><td class="Centrar">3</td><td class="Centrar">18</td>
+		</tr><tr>
+			<th>                                
+                                <a id="lnkPremio_idf72474cd6ac347b3a1b841040d941ddc" href="javascript:;" headertext="Fecaha">19-06 - CUPONAZO - Reintegros
+                                    <img id="imgProducto" alt="Mostrar detalle premio" style="cursor: pointer" src="../Imagenes/mas.png" title="Mostrar detalle del premio">
+                                </a>     
+                                
+                                
+                                <div id="pnlDetalle_idf72474cd6ac347b3a1b841040d941ddc" style="display: none">
+				
+                                    <div class="subtabla">
+					                    <div>
+					<table class="Tabla ancho100x100" cellspacing="0" rules="all" border="1" id="gvwDetalles" style="border-collapse:collapse;">
+						<caption>
+							Detalle del premio: 19-06 - CUPONAZO - Reintegros
+						</caption><tbody><tr>
+							<th class="Centrar" scope="col">CATEGORÍA</th><th class="Centrar" scope="col">CANTIDAD</th><th class="Centrar" scope="col">IMPORTE TOTAL (€)</th>
+						</tr><tr>
+							<th>
+                                                        Tradicional
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">1</td><td class="AlineaDer espacioCol centrado">3</td>
+						</tr><tr>
+							<th>
+                                                        <abbr title="Terminal punto de venta">TPV</abbr>
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">0</td><td class="AlineaDer espacioCol centrado">0</td>
+						</tr><tr>
+							<th>
+                                                        BONO
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">0</td><td class="AlineaDer espacioCol centrado">0</td>
+						</tr><tr>
+							<th>
+                                                        <abbr title="Resultado">R.</abbr> <abbr title="primera">prim. </abbr>cifra
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">1</td><td class="AlineaDer espacioCol centrado">3</td>
+						</tr><tr>
+							<th>
+                                                        <abbr title="Resultado">R.</abbr> <abbr title="última"><abbr title="última"><abbr title="última">ult. </abbr></abbr></abbr>cifra
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">0</td><td class="AlineaDer espacioCol centrado">0</td>
+						</tr>
+					</tbody></table>
+				</div>											
+				                    </div>
+                                
+			</div>
+
+                            </th><td class="Centrar">1</td><td class="Centrar">3</td>
+		</tr><tr>
+			<th>                                
+                                <a id="lnkPremio_idd3f13f1cbdf54fd29d09c99710c15c9a" href="javascript:;" headertext="Fecaha">18-06 - CUPÓN DIARIO - Reintegros
+                                    <img id="imgProducto" alt="Mostrar detalle premio" style="cursor: pointer" src="../Imagenes/mas.png" title="Mostrar detalle del premio">
+                                </a>     
+                                
+                                
+                                <div id="pnlDetalle_idd3f13f1cbdf54fd29d09c99710c15c9a" style="display: none">
+				
+                                    <div class="subtabla">
+					                    <div>
+					<table class="Tabla ancho100x100" cellspacing="0" rules="all" border="1" id="gvwDetalles" style="border-collapse:collapse;">
+						<caption>
+							Detalle del premio: 18-06 - CUPÓN DIARIO - Reintegros
+						</caption><tbody><tr>
+							<th class="Centrar" scope="col">CATEGORÍA</th><th class="Centrar" scope="col">CANTIDAD</th><th class="Centrar" scope="col">IMPORTE TOTAL (€)</th>
+						</tr><tr>
+							<th>
+                                                        Tradicional
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">5</td><td class="AlineaDer espacioCol centrado">10</td>
+						</tr><tr>
+							<th>
+                                                        <abbr title="Terminal punto de venta">TPV</abbr>
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">0</td><td class="AlineaDer espacioCol centrado">0</td>
+						</tr><tr>
+							<th>
+                                                        BONO
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">0</td><td class="AlineaDer espacioCol centrado">0</td>
+						</tr><tr>
+							<th>
+                                                        <abbr title="Resultado">R.</abbr> <abbr title="primera">prim. </abbr>cifra
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">5</td><td class="AlineaDer espacioCol centrado">10</td>
+						</tr><tr>
+							<th>
+                                                        <abbr title="Resultado">R.</abbr> <abbr title="última"><abbr title="última"><abbr title="última">ult. </abbr></abbr></abbr>cifra
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">0</td><td class="AlineaDer espacioCol centrado">0</td>
+						</tr>
+					</tbody></table>
+				</div>											
+				                    </div>
+                                
+			</div>
+
+                            </th><td class="Centrar">5</td><td class="Centrar">10</td>
+		</tr><tr>
+			<th>                                
+                                <a id="lnkPremio_idaf0b1519e9434b31a9dbea89cb03025a" href="javascript:;" headertext="Fecaha">17-06 - CUPÓN DIARIO - Reintegros
+                                    <img id="imgProducto" alt="Mostrar detalle premio" style="cursor: pointer" src="../Imagenes/mas.png" title="Mostrar detalle del premio">
+                                </a>     
+                                
+                                
+                                <div id="pnlDetalle_idaf0b1519e9434b31a9dbea89cb03025a" style="display: none">
+				
+                                    <div class="subtabla">
+					                    <div>
+					<table class="Tabla ancho100x100" cellspacing="0" rules="all" border="1" id="gvwDetalles" style="border-collapse:collapse;">
+						<caption>
+							Detalle del premio: 17-06 - CUPÓN DIARIO - Reintegros
+						</caption><tbody><tr>
+							<th class="Centrar" scope="col">CATEGORÍA</th><th class="Centrar" scope="col">CANTIDAD</th><th class="Centrar" scope="col">IMPORTE TOTAL (€)</th>
+						</tr><tr>
+							<th>
+                                                        Tradicional
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">2</td><td class="AlineaDer espacioCol centrado">4</td>
+						</tr><tr>
+							<th>
+                                                        <abbr title="Terminal punto de venta">TPV</abbr>
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">0</td><td class="AlineaDer espacioCol centrado">0</td>
+						</tr><tr>
+							<th>
+                                                        BONO
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">0</td><td class="AlineaDer espacioCol centrado">0</td>
+						</tr><tr>
+							<th>
+                                                        <abbr title="Resultado">R.</abbr> <abbr title="primera">prim. </abbr>cifra
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">2</td><td class="AlineaDer espacioCol centrado">4</td>
+						</tr><tr>
+							<th>
+                                                        <abbr title="Resultado">R.</abbr> <abbr title="última"><abbr title="última"><abbr title="última">ult. </abbr></abbr></abbr>cifra
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">0</td><td class="AlineaDer espacioCol centrado">0</td>
+						</tr>
+					</tbody></table>
+				</div>											
+				                    </div>
+                                
+			</div>
+
+                            </th><td class="Centrar">2</td><td class="Centrar">4</td>
+		</tr><tr>
+			<th>                                
+                                <a id="lnkPremio_id60dc07df1b174d2a9182d9beb552612f" href="javascript:;" headertext="Fecaha">14-06 - FIN DE SEMANA - Reintegros
+                                    <img id="imgProducto" alt="Mostrar detalle premio" style="cursor: pointer" src="../Imagenes/mas.png" title="Mostrar detalle del premio">
+                                </a>     
+                                
+                                
+                                <div id="pnlDetalle_id60dc07df1b174d2a9182d9beb552612f" style="display: none">
+				
+                                    <div class="subtabla">
+					                    <div>
+					<table class="Tabla ancho100x100" cellspacing="0" rules="all" border="1" id="gvwDetalles" style="border-collapse:collapse;">
+						<caption>
+							Detalle del premio: 14-06 - FIN DE SEMANA - Reintegros
+						</caption><tbody><tr>
+							<th class="Centrar" scope="col">CATEGORÍA</th><th class="Centrar" scope="col">CANTIDAD</th><th class="Centrar" scope="col">IMPORTE TOTAL (€)</th>
+						</tr><tr>
+							<th>
+                                                        Tradicional
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">3</td><td class="AlineaDer espacioCol centrado">6</td>
+						</tr><tr>
+							<th>
+                                                        <abbr title="Terminal punto de venta">TPV</abbr>
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">1</td><td class="AlineaDer espacioCol centrado">2</td>
+						</tr><tr>
+							<th>
+                                                        BONO
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">0</td><td class="AlineaDer espacioCol centrado">0</td>
+						</tr><tr>
+							<th>
+                                                        <abbr title="Resultado">R.</abbr> <abbr title="última"><abbr title="última"><abbr title="última">ult. </abbr></abbr></abbr>cifra
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">4</td><td class="AlineaDer espacioCol centrado">8</td>
+						</tr>
+					</tbody></table>
+				</div>											
+				                    </div>
+                                
+			</div>
+
+                            </th><td class="Centrar">4</td><td class="Centrar">8</td>
+		</tr><tr>
+			<th>                                
+                                <a id="lnkPremio_idd05fe171d758455fa1ac32896b71d9a4" href="javascript:;" headertext="Fecaha">13-06 - FIN DE SEMANA - 2C
+                                    <img id="imgProducto" alt="Mostrar detalle premio" style="cursor: pointer" src="../Imagenes/mas.png" title="Mostrar detalle del premio">
+                                </a>     
+                                
+                                
+                                <div id="pnlDetalle_idd05fe171d758455fa1ac32896b71d9a4" style="display: none">
+				
+                                    <div class="subtabla">
+					                    <div>
+					<table class="Tabla ancho100x100" cellspacing="0" rules="all" border="1" id="gvwDetalles" style="border-collapse:collapse;">
+						<caption>
+							Detalle del premio: 13-06 - FIN DE SEMANA - 2C
+						</caption><tbody><tr>
+							<th class="Centrar" scope="col">CATEGORÍA</th><th class="Centrar" scope="col">CANTIDAD</th><th class="Centrar" scope="col">IMPORTE TOTAL (€)</th>
+						</tr><tr>
+							<th>
+                                                        Tradicional
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">5</td><td class="AlineaDer espacioCol centrado">20</td>
+						</tr><tr>
+							<th>
+                                                        <abbr title="Terminal punto de venta">TPV</abbr>
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">0</td><td class="AlineaDer espacioCol centrado">0</td>
+						</tr><tr>
+							<th>
+                                                        BONO
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">0</td><td class="AlineaDer espacioCol centrado">0</td>
+						</tr>
+					</tbody></table>
+				</div>											
+				                    </div>
+                                
+			</div>
+
+                            </th><td class="Centrar">5</td><td class="Centrar">20</td>
+		</tr><tr>
+			<th>                                
+                                <a id="lnkPremio_idac2d81e802ec41f28f47787fe97dcd9c" href="javascript:;" headertext="Fecaha">12-06 - CUPONAZO - Reintegros
+                                    <img id="imgProducto" alt="Mostrar detalle premio" style="cursor: pointer" src="../Imagenes/mas.png" title="Mostrar detalle del premio">
+                                </a>     
+                                
+                                
+                                <div id="pnlDetalle_idac2d81e802ec41f28f47787fe97dcd9c" style="display: none">
+				
+                                    <div class="subtabla">
+					                    <div>
+					<table class="Tabla ancho100x100" cellspacing="0" rules="all" border="1" id="gvwDetalles" style="border-collapse:collapse;">
+						<caption>
+							Detalle del premio: 12-06 - CUPONAZO - Reintegros
+						</caption><tbody><tr>
+							<th class="Centrar" scope="col">CATEGORÍA</th><th class="Centrar" scope="col">CANTIDAD</th><th class="Centrar" scope="col">IMPORTE TOTAL (€)</th>
+						</tr><tr>
+							<th>
+                                                        Tradicional
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">4</td><td class="AlineaDer espacioCol centrado">12</td>
+						</tr><tr>
+							<th>
+                                                        <abbr title="Terminal punto de venta">TPV</abbr>
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">2</td><td class="AlineaDer espacioCol centrado">6</td>
+						</tr><tr>
+							<th>
+                                                        BONO
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">0</td><td class="AlineaDer espacioCol centrado">0</td>
+						</tr><tr>
+							<th>
+                                                        <abbr title="Resultado">R.</abbr> <abbr title="primera">prim. </abbr>cifra
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">2</td><td class="AlineaDer espacioCol centrado">6</td>
+						</tr><tr>
+							<th>
+                                                        <abbr title="Resultado">R.</abbr> <abbr title="última"><abbr title="última"><abbr title="última">ult. </abbr></abbr></abbr>cifra
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">4</td><td class="AlineaDer espacioCol centrado">12</td>
+						</tr>
+					</tbody></table>
+				</div>											
+				                    </div>
+                                
+			</div>
+
+                            </th><td class="Centrar">6</td><td class="Centrar">18</td>
+		</tr><tr>
+			<th>                                
+                                <a id="lnkPremio_id0f217c8191744332adb3e15eb9f8f5d9" href="javascript:;" headertext="Fecaha">11-06 - CUPÓN DIARIO - Reintegros
+                                    <img id="imgProducto" alt="Mostrar detalle premio" style="cursor: pointer" src="../Imagenes/mas.png" title="Mostrar detalle del premio">
+                                </a>     
+                                
+                                
+                                <div id="pnlDetalle_id0f217c8191744332adb3e15eb9f8f5d9" style="display: none">
+				
+                                    <div class="subtabla">
+					                    <div>
+					<table class="Tabla ancho100x100" cellspacing="0" rules="all" border="1" id="gvwDetalles" style="border-collapse:collapse;">
+						<caption>
+							Detalle del premio: 11-06 - CUPÓN DIARIO - Reintegros
+						</caption><tbody><tr>
+							<th class="Centrar" scope="col">CATEGORÍA</th><th class="Centrar" scope="col">CANTIDAD</th><th class="Centrar" scope="col">IMPORTE TOTAL (€)</th>
+						</tr><tr>
+							<th>
+                                                        Tradicional
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">3</td><td class="AlineaDer espacioCol centrado">6</td>
+						</tr><tr>
+							<th>
+                                                        <abbr title="Terminal punto de venta">TPV</abbr>
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">0</td><td class="AlineaDer espacioCol centrado">0</td>
+						</tr><tr>
+							<th>
+                                                        BONO
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">0</td><td class="AlineaDer espacioCol centrado">0</td>
+						</tr><tr>
+							<th>
+                                                        <abbr title="Resultado">R.</abbr> <abbr title="primera">prim. </abbr>cifra
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">0</td><td class="AlineaDer espacioCol centrado">0</td>
+						</tr><tr>
+							<th>
+                                                        <abbr title="Resultado">R.</abbr> <abbr title="última"><abbr title="última"><abbr title="última">ult. </abbr></abbr></abbr>cifra
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">3</td><td class="AlineaDer espacioCol centrado">6</td>
+						</tr>
+					</tbody></table>
+				</div>											
+				                    </div>
+                                
+			</div>
+
+                            </th><td class="Centrar">3</td><td class="Centrar">6</td>
+		</tr><tr>
+			<th>                                
+                                <a id="lnkPremio_id3a473e1e721b496cb3478e09f3484850" href="javascript:;" headertext="Fecaha">10-06 - CUPÓN DIARIO - Reintegros
+                                    <img id="imgProducto" alt="Mostrar detalle premio" style="cursor: pointer" src="../Imagenes/mas.png" title="Mostrar detalle del premio">
+                                </a>     
+                                
+                                
+                                <div id="pnlDetalle_id3a473e1e721b496cb3478e09f3484850" style="display: none">
+				
+                                    <div class="subtabla">
+					                    <div>
+					<table class="Tabla ancho100x100" cellspacing="0" rules="all" border="1" id="gvwDetalles" style="border-collapse:collapse;">
+						<caption>
+							Detalle del premio: 10-06 - CUPÓN DIARIO - Reintegros
+						</caption><tbody><tr>
+							<th class="Centrar" scope="col">CATEGORÍA</th><th class="Centrar" scope="col">CANTIDAD</th><th class="Centrar" scope="col">IMPORTE TOTAL (€)</th>
+						</tr><tr>
+							<th>
+                                                        Tradicional
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">6</td><td class="AlineaDer espacioCol centrado">12</td>
+						</tr><tr>
+							<th>
+                                                        <abbr title="Terminal punto de venta">TPV</abbr>
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">0</td><td class="AlineaDer espacioCol centrado">0</td>
+						</tr><tr>
+							<th>
+                                                        BONO
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">0</td><td class="AlineaDer espacioCol centrado">0</td>
+						</tr><tr>
+							<th>
+                                                        <abbr title="Resultado">R.</abbr> <abbr title="primera">prim. </abbr>cifra
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">2</td><td class="AlineaDer espacioCol centrado">4</td>
+						</tr><tr>
+							<th>
+                                                        <abbr title="Resultado">R.</abbr> <abbr title="última"><abbr title="última"><abbr title="última">ult. </abbr></abbr></abbr>cifra
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">4</td><td class="AlineaDer espacioCol centrado">8</td>
+						</tr>
+					</tbody></table>
+				</div>											
+				                    </div>
+                                
+			</div>
+
+                            </th><td class="Centrar">6</td><td class="Centrar">12</td>
+		</tr><tr>
+			<th>                                
+                                <a id="lnkPremio_id24cd381ac840455f881fdd4bccec8337" href="javascript:;" headertext="Fecaha">08-06 - CUPÓN DIARIO - Reintegros
+                                    <img id="imgProducto" alt="Mostrar detalle premio" style="cursor: pointer" src="../Imagenes/mas.png" title="Mostrar detalle del premio">
+                                </a>     
+                                
+                                
+                                <div id="pnlDetalle_id24cd381ac840455f881fdd4bccec8337" style="display: none">
+				
+                                    <div class="subtabla">
+					                    <div>
+					<table class="Tabla ancho100x100" cellspacing="0" rules="all" border="1" id="gvwDetalles" style="border-collapse:collapse;">
+						<caption>
+							Detalle del premio: 08-06 - CUPÓN DIARIO - Reintegros
+						</caption><tbody><tr>
+							<th class="Centrar" scope="col">CATEGORÍA</th><th class="Centrar" scope="col">CANTIDAD</th><th class="Centrar" scope="col">IMPORTE TOTAL (€)</th>
+						</tr><tr>
+							<th>
+                                                        Tradicional
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">0</td><td class="AlineaDer espacioCol centrado">0</td>
+						</tr><tr>
+							<th>
+                                                        <abbr title="Terminal punto de venta">TPV</abbr>
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">1</td><td class="AlineaDer espacioCol centrado">2</td>
+						</tr><tr>
+							<th>
+                                                        BONO
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">0</td><td class="AlineaDer espacioCol centrado">0</td>
+						</tr><tr>
+							<th>
+                                                        <abbr title="Resultado">R.</abbr> <abbr title="primera">prim. </abbr>cifra
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">1</td><td class="AlineaDer espacioCol centrado">2</td>
+						</tr><tr>
+							<th>
+                                                        <abbr title="Resultado">R.</abbr> <abbr title="última"><abbr title="última"><abbr title="última">ult. </abbr></abbr></abbr>cifra
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">0</td><td class="AlineaDer espacioCol centrado">0</td>
+						</tr>
+					</tbody></table>
+				</div>											
+				                    </div>
+                                
+			</div>
+
+                            </th><td class="Centrar">1</td><td class="Centrar">2</td>
+		</tr><tr>
+			<th>                                
+                                <a id="lnkPremio_idf5840867547a48dc8499a03035d853d9" href="javascript:;" headertext="Fecaha">07-06 - FIN DE SEMANA - 2C
+                                    <img id="imgProducto" alt="Mostrar detalle premio" style="cursor: pointer" src="../Imagenes/mas.png" title="Mostrar detalle del premio">
+                                </a>     
+                                
+                                
+                                <div id="pnlDetalle_idf5840867547a48dc8499a03035d853d9" style="display: none">
+				
+                                    <div class="subtabla">
+					                    <div>
+					<table class="Tabla ancho100x100" cellspacing="0" rules="all" border="1" id="gvwDetalles" style="border-collapse:collapse;">
+						<caption>
+							Detalle del premio: 07-06 - FIN DE SEMANA - 2C
+						</caption><tbody><tr>
+							<th class="Centrar" scope="col">CATEGORÍA</th><th class="Centrar" scope="col">CANTIDAD</th><th class="Centrar" scope="col">IMPORTE TOTAL (€)</th>
+						</tr><tr>
+							<th>
+                                                        Tradicional
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">0</td><td class="AlineaDer espacioCol centrado">0</td>
+						</tr><tr>
+							<th>
+                                                        <abbr title="Terminal punto de venta">TPV</abbr>
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">1</td><td class="AlineaDer espacioCol centrado">4</td>
+						</tr><tr>
+							<th>
+                                                        BONO
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">0</td><td class="AlineaDer espacioCol centrado">0</td>
+						</tr>
+					</tbody></table>
+				</div>											
+				                    </div>
+                                
+			</div>
+
+                            </th><td class="Centrar">1</td><td class="Centrar">4</td>
+		</tr><tr>
+			<th>                                
+                                <a id="lnkPremio_id5a19f477fd1e43b8ae76bab6ed26534d" href="javascript:;" headertext="Fecaha">07-06 - FIN DE SEMANA - Reintegros
+                                    <img id="imgProducto" alt="Mostrar detalle premio" style="cursor: pointer" src="../Imagenes/mas.png" title="Mostrar detalle del premio">
+                                </a>     
+                                
+                                
+                                <div id="pnlDetalle_id5a19f477fd1e43b8ae76bab6ed26534d" style="display: none">
+				
+                                    <div class="subtabla">
+					                    <div>
+					<table class="Tabla ancho100x100" cellspacing="0" rules="all" border="1" id="gvwDetalles" style="border-collapse:collapse;">
+						<caption>
+							Detalle del premio: 07-06 - FIN DE SEMANA - Reintegros
+						</caption><tbody><tr>
+							<th class="Centrar" scope="col">CATEGORÍA</th><th class="Centrar" scope="col">CANTIDAD</th><th class="Centrar" scope="col">IMPORTE TOTAL (€)</th>
+						</tr><tr>
+							<th>
+                                                        Tradicional
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">5</td><td class="AlineaDer espacioCol centrado">10</td>
+						</tr><tr>
+							<th>
+                                                        <abbr title="Terminal punto de venta">TPV</abbr>
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">1</td><td class="AlineaDer espacioCol centrado">2</td>
+						</tr><tr>
+							<th>
+                                                        BONO
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">0</td><td class="AlineaDer espacioCol centrado">0</td>
+						</tr><tr>
+							<th>
+                                                        <abbr title="Resultado">R.</abbr> <abbr title="última"><abbr title="última"><abbr title="última">ult. </abbr></abbr></abbr>cifra
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">6</td><td class="AlineaDer espacioCol centrado">12</td>
+						</tr>
+					</tbody></table>
+				</div>											
+				                    </div>
+                                
+			</div>
+
+                            </th><td class="Centrar">6</td><td class="Centrar">12</td>
+		</tr><tr>
+			<th>                                
+                                <a id="lnkPremio_id85e29ed3f69b40b1a63aac37507f9d0b" href="javascript:;" headertext="Fecaha">06-06 - FIN DE SEMANA - Reintegros
+                                    <img id="imgProducto" alt="Mostrar detalle premio" style="cursor: pointer" src="../Imagenes/mas.png" title="Mostrar detalle del premio">
+                                </a>     
+                                
+                                
+                                <div id="pnlDetalle_id85e29ed3f69b40b1a63aac37507f9d0b" style="display: none">
+				
+                                    <div class="subtabla">
+					                    <div>
+					<table class="Tabla ancho100x100" cellspacing="0" rules="all" border="1" id="gvwDetalles" style="border-collapse:collapse;">
+						<caption>
+							Detalle del premio: 06-06 - FIN DE SEMANA - Reintegros
+						</caption><tbody><tr>
+							<th class="Centrar" scope="col">CATEGORÍA</th><th class="Centrar" scope="col">CANTIDAD</th><th class="Centrar" scope="col">IMPORTE TOTAL (€)</th>
+						</tr><tr>
+							<th>
+                                                        Tradicional
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">4</td><td class="AlineaDer espacioCol centrado">8</td>
+						</tr><tr>
+							<th>
+                                                        <abbr title="Terminal punto de venta">TPV</abbr>
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">0</td><td class="AlineaDer espacioCol centrado">0</td>
+						</tr><tr>
+							<th>
+                                                        BONO
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">0</td><td class="AlineaDer espacioCol centrado">0</td>
+						</tr><tr>
+							<th>
+                                                        <abbr title="Resultado">R.</abbr> <abbr title="última"><abbr title="última"><abbr title="última">ult. </abbr></abbr></abbr>cifra
+                                                    </th><td class="AlineaDer espacioCol sizeCampoMedio">4</td><td class="AlineaDer espacioCol centrado">8</td>
+						</tr>
+					</tbody></table>
+				</div>											
+				                    </div>
+                                
+			</div>
+
+                            </th><td class="Centrar">4</td><td class="Centrar">8</td>
+		</tr>
+	</tbody></table>
+</div>
+         
+        <!-- Detalle del Producto (PASIVA) -->
+        <div id="pnlDetalle" style="display: none">
+	
+            <div id="pnlContentDetalle"></div>
+            <br>
+            <input type="button" id="btnVolverDetalle" title="Volver" value="Volver" class="BotonMedio2 margenDerecha" data-parent="lnkProducto" onclick="Volver()">
+        
+</div>
+
+       <div id="dialog-detalle" title="Detalle">
+
+       
+   
+    <input name="ctl00$ContentPlaceHolder1$hError" type="hidden" id="ctl00_ContentPlaceHolder1_hError">
+    <input type="hidden" name="ctl00$ContentPlaceHolder1$HiddenField1" id="ctl00_ContentPlaceHolder1_HiddenField1">
+</div>
+     <div class="padGeneral Centrar fuente07">
+              
+     </div>
+</div>
+
+<script type="text/javascript">
+//<![CDATA[
+
+
+window.globalNumTr = 0;
+
+
+function cargaTecla(e, identificador, tdpadre, idpadre, totalProductos){
+
+    if (e.keyCode==13)
+       CargaDetalleLink(identificador, tdpadre, idpadre, totalProductos) ;
+
+}
+
+function CargaDetalleLink(identificador, tdpadre, idpadre, totalProductos) {
+    
+    var exploreBrowser = getInternetExplorerVersion();
+    
+    var idfocus = totalProductos;
+ 
+    var objPadre=$("#"+idpadre)[0];
+    var titlepadre=objPadre.innerHTML;
+    tdpadre.innerHTML = "<a href='#'><span id='" + idpadre + "'>" + titlepadre + "</span> <img class=\"imgmas\" src='../Imagenes/mas.png' alt='Mostrar' title='Mostrar'/></a>";
+    tdpadre.focus();
+     
+    var contador = 0;
+    
+    var $seleccionTr =  $('tr[id$=' + identificador + ']');
+    
+     $seleccionTr.each(function(idx, el) 
+     {
+        var estiloActivo = el.style.display;
+       
+        if (estiloActivo == 'table-row')  
+        {
+            if (contador == 0)
+            {                
+//                $('tr[id$=' + identificador + ']').css('display','none');
+                el.style.display='none';  
+                if (exploreBrowser == -1)
+                {
+                    el.style.visibility ='none';  
+                    el.style.overflow ='none'; 
+                }
+                else
+                {
+                     el.style.visibility ='hidden'; 
+                }   
+            }
+            else
+            {   
+                    el.style.display='table-row';  
+                    el.style.visibility ='visible'; 
+                     
+                    if (exploreBrowser == -1)
+                    {
+                        
+                        el.style.overflow ='visible';  
+                    }
+            }
+            
+        }
+        else
+        {
+        
+             if (estiloActivo == 'none')  
+            {   
+                //$('tr[id$=' + identificador + ']').css('display','none');
+                el.style.display='table-row';  
+                el.style.visibility ='visible'; 
+                 
+                if (exploreBrowser == -1)
+                {
+                    
+                    el.style.overflow ='visible';  
+                }
+//                el.style.display='none';  
+//                if (exploreBrowser == -1)
+//                {
+//                    el.style.visibility ='none';  
+//                    el.style.overflow ='none'; 
+//                }
+//                else
+//                {
+//                     el.style.visibility ='hidden'; 
+//                }
+            }
+            else
+            {
+                  contador++;
+        
+                $('tr[id$=' + identificador + ']').css('display','table-row');
+                
+                el.style.display='table-row';  
+                el.style.visibility ='visible'; 
+                 
+                if (exploreBrowser == -1)
+                {
+                    
+                    el.style.overflow ='visible';  
+                }
+            }
+            
+            if (idfocus == totalProductos)
+            {
+                tdpadre.innerHTML = "<a href='#'><span id='" + idpadre + "'>" + titlepadre + "</span> <img  class=\"imgmenos\" src='../Imagenes/menos.png' alt='Ocultar' title='Ocultar'/></a>";
+                //el.setAttribute("tabindex",idfocus);
+                //el.focus();                
+            }
+            
+             idfocus++;           
+        }        
+         
+    });
+    
+    window.globalNumTr = idfocus;
+    event.preventDefault();
+    
+}
+
+function getInternetExplorerVersion()
+// Returns the version of Internet Explorer or a -1
+// (indicating the use of another browser).
+{
+  var rv = -1; // Return value assumes failure.
+  if (navigator.appName == 'Microsoft Internet Explorer')
+  {
+    var ua = navigator.userAgent;
+    var re  = new RegExp("MSIE ([0-9]{1,}[\.0-9]{0,})");
+    if (re.exec(ua) != null)
+      rv = parseFloat( RegExp.$1 );
+  }
+  return rv;
+}
+
+//]]>
+       
+</script>
+
+                                        
+                      <input name="ctl00$hPathImgLinkHead" type="hidden" id="ctl00_hPathImgLinkHead" value="../imagenes/indica_abre_ventana_nueva.gif">
+                      <input name="ctl00$hAuditoria" type="hidden" id="ctl00_hAuditoria">                           
+                    </div></form>                               
+                
+<footer role="presentation">
+	<div id="portal-footer-wrapper">
+		<div id="footer-general-site-actions">
+			<div class="wrap">
+				<div id="footer-site-actions">
+					<ul id="footer-portal-siteactions">
+						<li>
+							<a href="https://portal.once.es/empleado/accesibilidad" id="ctl00_wcPie_idAcc" title="Accesibilidad" target="_blank">Accesibilidad</a>                            
+						</li>
+						<li>
+							<a href="https://portal.once.es/empleado/politica-de-privacidad" id="ctl00_wcPie_idPolit" title="Política de privacidad" target="_blank">Política de privacidad</a>
+						</li>
+						
+                        <li>
+							<a href="../MapaWeb.aspx" id="ctl00_wcPie_lnkMapa" title="Mapa Web">Mapa Web</a>
+						</li>
+						
+					</ul>
+				</div>
+				<div id="footer-banners-once">
+					<img src="/GestionLaboralNomina/Imagenes/gs-once.png" title="Grupo social ONCE" alt="Grupo social ONCE" id="gs-once">
+                    <script>
+                        document.getElementById('gs-once').src = '/GestionLaboralNomina/Imagenes/gs-once.png';
+                    </script> 
+                  
+                     
+				</div>
+			</div>
+		</div>
+		<div id="ley-transparencia">
+			<p>LEY DE TRANSPARENCIA</p>
+			<p>Esta web se ajusta a lo establecido en la Ley 19/2013, de 9 de diciembre, de transparencia, acceso a la información pública y buen gobierno.</p>
+		</div>
+		<div id="portal-footer">
+			<p>© ONCE <span id="ctl00_wcPie_spAnio">2026</span> - Versión <span id="ctl00_wcPie_spVersion">1.2.21</span></p>
+		</div>
+	</div>
+</footer>
+              </div>     
+        </div>             
+      </div>
+    </div>
+
+     
+
+       
+
+  </div>
+
+
+ 
+
+</div></body></html>
