@@ -28,6 +28,7 @@ from reportlab.lib.units import cm
 from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
 
 import agenda
+import cuadre_diario
 import portal_once as po
 
 INFORMES_PATH = Path(__file__).resolve().parent.parent / "informes"
@@ -430,6 +431,42 @@ def _lista_agenda(datos_agenda, estilos):
     return flowables
 
 
+def _seccion_cuadre_diario(hoy_date, estilos):
+    """Cuadre del día anterior: si el ticket trae resumen.resultado se usa
+    directamente como EFECTIVO (ya incluye premios de cupones y de rasca
+    dentro de "PAGOS"); si no, se calcula con la fórmula de respaldo
+    (ventas - devoluciones - premios - tarjeta, sin sumar pagos_rasca
+    aparte, para no contarlo dos veces). Ver cuadre_diario.py."""
+    flowables = [Paragraph("CUADRE DIARIO", estilos["seccion"])]
+    ayer_dt = datetime.combine(hoy_date, datetime.min.time()) - timedelta(days=1)
+    resultado = cuadre_diario.calcular_cuadre_diario(ayer_dt)
+
+    if not resultado.get("ejecutado", True):
+        flowables.append(Paragraph(resultado["mensaje"], estilos["normal"]))
+        return flowables
+
+    flowables.append(Paragraph(
+        f"EFECTIVO DEL DÍA: {resultado['efectivo']:.2f}€ (origen: {resultado['origen']})",
+        estilos["bullet"],
+    ))
+
+    dif = resultado["diferencia"]
+    if dif is None:
+        flowables.append(Paragraph(
+            "ℹ️ Sin resumen.resultado en el ticket — EFECTIVO calculado con la fórmula "
+            "de respaldo, no verificado contra un segundo valor.",
+            estilos["normal"],
+        ))
+    elif abs(dif) < 0.01:
+        flowables.append(Paragraph("✅ CUADRE CORRECTO: 0,00€ diferencia", estilos["normal"]))
+    else:
+        signo = "+" if dif > 0 else ""
+        flowables.append(Paragraph(
+            f"⚠️ DESCUADRE: {signo}{dif:.2f}€ diferencia", estilos["normal"],
+        ))
+    return flowables
+
+
 def generar_informe_pdf(datos, datos_agenda, hoy_date, destino):
     ayer = (hoy_date - timedelta(days=1)).strftime("%d-%m")
     ayer_legible = (hoy_date - timedelta(days=1)).strftime("%d/%m/%Y")
@@ -451,6 +488,7 @@ def generar_informe_pdf(datos, datos_agenda, hoy_date, destino):
     story.extend(_seccion_liquidacion(datos, estilos))
     story.extend(_lista_alertas(datos, datos_agenda, hoy_date, estilos))
     story.extend(_lista_agenda(datos_agenda, estilos))
+    story.extend(_seccion_cuadre_diario(hoy_date, estilos))
 
     doc.build(story)
 
