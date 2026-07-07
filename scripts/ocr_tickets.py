@@ -37,6 +37,7 @@ Uso:
 import base64
 import json
 import re
+import subprocess
 import sys
 import unicodedata
 import urllib.error
@@ -45,7 +46,6 @@ from pathlib import Path
 
 import anthropic
 import fitz  # PyMuPDF
-import keyring
 
 from portal_once import ONCE_PATH
 
@@ -407,8 +407,23 @@ def _parsear_json_respuesta(texto):
         return None
 
 
+def _leer_keychain(servicio, cuenta):
+    """Lee una clave del Keychain de macOS invocando el comando `security`
+    directamente, en vez de la librería keyring: keyring falla con el
+    error -25308 (errSecInteractionNotAllowed) cuando se ejecuta desde
+    una sesión sin interfaz gráfica (p.ej. por SSH) — `security` sí puede
+    leer del Keychain de login ya desbloqueado en esos casos."""
+    resultado = subprocess.run(
+        ["security", "find-generic-password", "-s", servicio, "-a", cuenta, "-w"],
+        capture_output=True, text=True,
+    )
+    if resultado.returncode != 0:
+        return None
+    return resultado.stdout.strip()
+
+
 def _clave_claude():
-    api_key = keyring.get_password(KEYCHAIN_SERVICE_CLAUDE, KEYCHAIN_ACCOUNT_CLAUDE)
+    api_key = _leer_keychain(KEYCHAIN_SERVICE_CLAUDE, KEYCHAIN_ACCOUNT_CLAUDE)
     if not api_key:
         raise RuntimeError(
             f"No hay clave de Claude guardada en el Keychain "
@@ -418,7 +433,7 @@ def _clave_claude():
 
 
 def _clave_nvidia():
-    api_key = keyring.get_password(KEYCHAIN_SERVICE_NVIDIA, KEYCHAIN_ACCOUNT_NVIDIA)
+    api_key = _leer_keychain(KEYCHAIN_SERVICE_NVIDIA, KEYCHAIN_ACCOUNT_NVIDIA)
     if not api_key:
         raise RuntimeError(
             f"No hay clave de NVIDIA guardada en el Keychain "

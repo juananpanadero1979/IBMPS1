@@ -39,6 +39,7 @@ BOTONES_PROHIBIDOS). No accede a "Ingresos a cuenta producto".
 import json
 import random
 import re
+import subprocess
 import sys
 import time
 import getpass
@@ -142,8 +143,25 @@ def cargar_usuario():
         return json.load(f)["usuario"]
 
 
+def _leer_keychain(servicio, cuenta):
+    """Lee una clave del Keychain de macOS invocando el comando `security`
+    directamente, en vez de la librería keyring: keyring falla con el
+    error -25308 (errSecInteractionNotAllowed) cuando se ejecuta desde
+    una sesión sin interfaz gráfica (p.ej. por SSH) — `security` sí puede
+    leer del Keychain de login ya desbloqueado en esos casos. (La
+    escritura en setup_credenciales() sigue con keyring — ese flujo es
+    siempre interactivo, nunca se ejecuta por SSH.)"""
+    resultado = subprocess.run(
+        ["security", "find-generic-password", "-s", servicio, "-a", cuenta, "-w"],
+        capture_output=True, text=True,
+    )
+    if resultado.returncode != 0:
+        return None
+    return resultado.stdout.strip()
+
+
 def obtener_password(usuario):
-    password = keyring.get_password(KEYCHAIN_SERVICE, usuario)
+    password = _leer_keychain(KEYCHAIN_SERVICE, usuario)
     if not password:
         raise RuntimeError(
             f"No hay contraseña guardada en el Keychain para '{usuario}'. "
@@ -153,7 +171,7 @@ def obtener_password(usuario):
 
 
 def obtener_clave_segura():
-    clave_segura = keyring.get_password(KEYCHAIN_SERVICE, KEYCHAIN_CLAVE_SEGURA_ACCOUNT)
+    clave_segura = _leer_keychain(KEYCHAIN_SERVICE, KEYCHAIN_CLAVE_SEGURA_ACCOUNT)
     if not clave_segura:
         raise RuntimeError(
             "No hay clave segura de Gestiona guardada en el Keychain. "
