@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+# DEPRECATED — sustituido por ocr_tickets.py.
+# No se usa en producción. Mantener solo como referencia
+# histórica. Candidato a borrar en una futura limpieza.
 """
 Decode Ticket ONCE - Agencia 576 Getafe
 Lee y procesa las fotos de tickets del TPV subidas a iCloud

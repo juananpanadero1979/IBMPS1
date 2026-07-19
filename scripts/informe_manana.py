@@ -28,8 +28,11 @@ from reportlab.lib.units import cm
 from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
 
 import agenda
+import alertas_caducidad
 import cuadre_diario
 import portal_once as po
+from ocr_comunicaciones import COMUNICACIONES_PATH
+from ocr_devolucion_libros import DEVOLUCION_LIBROS_PATH
 
 INFORMES_PATH = Path(__file__).resolve().parent.parent / "informes"
 
@@ -108,31 +111,6 @@ def _formatear_libros(detalle):
     return "<br/>".join(f"{d.get('libro')} — {d.get('estado')} ({d.get('fecha')})" for d in detalle)
 
 
-def _premios_pasiva_agrupados_por_juego(premios, ayer):
-    """Agrupa por juego (no por categoría) sumando importe/cantidad
-    totales y el desglose Tradicional/TPV de cada fila de ese juego."""
-    grupos = {}
-    for fila in premios:
-        if fila.get("fecha") != ayer:
-            continue
-        juego = fila.get("juego") or "?"
-        g = grupos.setdefault(juego, {
-            "importe_total": 0, "cantidad_total": 0,
-            "trad_cant": 0, "trad_imp": 0, "tpv_cant": 0, "tpv_imp": 0,
-        })
-        g["importe_total"] += fila.get("importe_total") or 0
-        g["cantidad_total"] += fila.get("cantidad_total") or 0
-        for d in fila.get("detalle") or []:
-            tipo = (d.get("tipo") or "").strip().lower()
-            if tipo == "tradicional":
-                g["trad_cant"] += d.get("cantidad") or 0
-                g["trad_imp"] += d.get("importe") or 0
-            elif tipo == "tpv":
-                g["tpv_cant"] += d.get("cantidad") or 0
-                g["tpv_imp"] += d.get("importe") or 0
-    return grupos
-
-
 # ── Estilos y helpers de maquetación ─────────────────────────────────
 
 def _crear_estilos():
@@ -163,6 +141,32 @@ def _crear_estilos():
         "bullet": ParagraphStyle(
             "bullet", parent=base["Normal"], fontName="Helvetica",
             fontSize=9, leading=13, leftIndent=10,
+        ),
+        # Variantes por nivel de caducidad_libros: el font Helvetica no
+        # tiene glifos de emoji (🔴🟡🟢 salen como cuadro negro relleno en
+        # el PDF, igual que ✅/⚠️/📬 en el resto del informe) — la señal
+        # visual real va en el color del texto + la etiqueta [NIVEL], no
+        # en el emoji.
+        "bullet_urgente": ParagraphStyle(
+            "bullet_urgente", parent=base["Normal"], fontName="Helvetica-Bold",
+            fontSize=9, leading=13, leftIndent=10, textColor=colors.HexColor("#C0392B"),
+        ),
+        "bullet_aviso": ParagraphStyle(
+            "bullet_aviso", parent=base["Normal"], fontName="Helvetica-Bold",
+            fontSize=9, leading=13, leftIndent=10, textColor=colors.HexColor("#B7770B"),
+        ),
+        "bullet_ok": ParagraphStyle(
+            "bullet_ok", parent=base["Normal"], fontName="Helvetica",
+            fontSize=9, leading=13, leftIndent=10, textColor=colors.HexColor("#1E8449"),
+        ),
+        # Premio individual > UMBRAL_PREMIO_IMPORTANTE (ver
+        # _seccion_premios_repartidos): igual que con la caducidad de
+        # libros, el 🎉 no se ve en el PDF (Helvetica no tiene glifo),
+        # así que la señal real es negrita + color dorado + el texto
+        # "¡Premio importante!" explícito, no el emoji.
+        "premio_importante": ParagraphStyle(
+            "premio_importante", parent=base["Normal"], fontName="Helvetica-Bold",
+            fontSize=9.5, leading=14, leftIndent=10, textColor=colors.HexColor("#B8860B"),
         ),
     }
 
@@ -245,7 +249,10 @@ def _tablas_paquetes(datos, estilos):
 def _tabla_almacen(datos, estilos):
     flowables = [Paragraph("CONTROL DE ALMACÉN RASCAS — DETALLE DE LIBROS", estilos["seccion"])]
     bloque = datos.get("stock_rascas")
-    productos = (bloque or {}).get("productos") or []
+    # Si parsear_html_portal.py no llegó a ejecutarse hoy, "stock_rascas"
+    # todavía es la tabla cruda de portal_once.py (una lista), no el dict
+    # con "productos"/"detalle" — se trata igual que "sin datos".
+    productos = bloque.get("productos") or [] if isinstance(bloque, dict) else []
     if not productos:
         flowables.append(Paragraph("Sin datos descargados hoy.", estilos["normal"]))
         return flowables
@@ -277,53 +284,188 @@ def _tabla_almacen(datos, estilos):
     return flowables
 
 
-def _tabla_premios_pasiva(datos, ayer, ayer_legible, estilos):
-    flowables = [Paragraph(f"PREMIOS PASIVA — AYER ({ayer_legible})", estilos["seccion"])]
-    bloque = datos.get("premios_pasiva")
-    if bloque is None:
-        flowables.append(Paragraph("Sin datos descargados hoy.", estilos["normal"]))
-        return flowables
-    grupos = _premios_pasiva_agrupados_por_juego(bloque.get("premios") or [], ayer)
-    if not grupos:
-        flowables.append(Paragraph("Sin premios repartidos ayer en los datos descargados.", estilos["normal"]))
+def _seccion_caducidad_libros(hoy_date, estilos):
+    """Aviso preventivo de caducidad: ONCE da por vendido automáticamente
+    (cobrándolo igual) un libro Confirmado/Activado que lleva 90 días sin
+    venderse de verdad. Todo el cálculo de días viene ya hecho por
+    alertas_caducidad.calcular_alertas_caducidad() (Python puro, ver ese
+    módulo) — aquí solo se maqueta, sin recalcular nada. Se muestran
+    TODOS los libros pendientes (no solo los urgentes), ordenados de más
+    a menos antiguo, para poder planificar con margen qué llevar a
+    cambiar antes."""
+    flowables = [Paragraph("⏰ CADUCIDAD DE LIBROS", estilos["seccion"])]
+    fecha_dt = datetime.combine(hoy_date, datetime.min.time())
+    resultado = alertas_caducidad.calcular_alertas_caducidad(fecha_dt)
+
+    if not resultado.get("ejecutado", True):
+        flowables.append(Paragraph(resultado["mensaje"], estilos["normal"]))
         return flowables
 
-    filas = [["Juego", "Importe total", "Tradicional", "TPV"]]
-    for juego, g in grupos.items():
-        filas.append([
-            juego,
-            f"{g['importe_total']} €",
-            f"{g['trad_cant']} u / {g['trad_imp']} €",
-            f"{g['tpv_cant']} u / {g['tpv_imp']} €",
-        ])
-    tabla = Table(filas, colWidths=[5 * cm, 3 * cm, 3.8 * cm, 3.8 * cm], repeatRows=1)
-    tabla.setStyle(_estilo_tabla())
-    flowables.append(tabla)
+    libros = resultado["libros"]
+    if not libros:
+        flowables.append(Paragraph(
+            "Sin libros Confirmado/Activado con fecha registrada.", estilos["normal"],
+        ))
+        return flowables
+
+    t = resultado["totales"]
+    flowables.append(Paragraph(
+        f"{len(libros)} libro(s) pendiente(s) — {t['urgente']} urgente(s), "
+        f"{t['aviso']} en aviso, {t['ok']} ok",
+        estilos["normal"],
+    ))
+    flowables.append(Spacer(1, 0.15 * cm))
+    estilo_por_nivel = {
+        "URGENTE": estilos["bullet_urgente"],
+        "AVISO": estilos["bullet_aviso"],
+        "OK": estilos["bullet_ok"],
+    }
+    for l in libros:
+        flowables.append(Paragraph(
+            f"[{l['nivel']}] {l['producto']} — Libro {l['libro']} — confirmado hace "
+            f"{l['dias_transcurridos']} días ({l['dias_para_caducar']} días para caducar)",
+            estilo_por_nivel[l["nivel"]],
+        ))
     return flowables
 
 
-def _tabla_premios_plana(datos, clave, titulo, ayer, ayer_legible, estilos):
-    flowables = [Paragraph(f"{titulo} — AYER ({ayer_legible})", estilos["seccion"])]
-    bloque = datos.get(clave)
-    if bloque is None:
-        flowables.append(Paragraph("Sin datos descargados hoy.", estilos["normal"]))
-        return flowables
-    filas_datos = [f for f in (bloque.get("premios") or []) if f.get("fecha") == ayer]
-    if not filas_datos:
-        flowables.append(Paragraph("Sin premios repartidos ayer en los datos descargados.", estilos["normal"]))
+# Mismo umbral que UMBRAL_PREMIO_IMPORTANTE en asistente.py
+# (_contexto_premios) — un premio individual (una línea juego+categoría)
+# por encima de esto se destaca, aquí y por voz, no dos criterios
+# distintos para el mismo concepto.
+UMBRAL_PREMIO_IMPORTANTE = 50.0
+
+
+def _fecha_corta_a_date(fecha_corta, referencia):
+    """Convierte una fecha corta "DD-MM" (como vienen las filas de
+    premios_{tipo}_{hoy}.json, sin año) a un date real, usando el año de
+    `referencia` salvo que el resultado caiga en el futuro respecto a
+    ella — en ese caso la fila es de diciembre del año anterior (nombre
+    de archivo ya en enero). Devuelve None si "DD-MM" no es válido.
+    Misma lógica que asistente.py:_fecha_corta_a_date — si cambias una,
+    cambia la otra."""
+    try:
+        dia_str, mes_str = fecha_corta.split("-")
+        fecha = referencia.replace(month=int(mes_str), day=int(dia_str))
+    except (ValueError, AttributeError):
+        return None
+    if fecha > referencia:
+        fecha = fecha.replace(year=fecha.year - 1)
+    return fecha
+
+
+def _premios_del_dia(datos, hoy_date):
+    """Todas las líneas de premio (pasiva+activa+instantánea) del día
+    MÁS RECIENTE que de verdad aparezca en los 3 JSON, ordenadas de
+    mayor a menor importe.
+
+    FIX de un bug real (el mismo que ya se corrigió en
+    asistente.py:_contexto_premios): antes se filtraba por "ayer"
+    calculado como hoy_date - 1 día, asumiendo que el portal siempre
+    tiene publicado el cierre de ayer. Si ese hueco es de más de un día
+    (fin de semana, festivo, retraso de publicación...), "ayer" no
+    existe en los datos y la sección salía vacía aunque SÍ hubiera datos
+    recientes, solo que de hace más de un día. Aquí se calcula la fecha
+    MÁXIMA real presente en las filas descargadas y se filtra por esa.
+
+    Devuelve (filas, fecha_objetivo) — fecha_objetivo es None si
+    ninguno de los 3 archivos trae una fecha reconocible."""
+    filas_por_tipo = {}
+    for tipo, clave in (
+        ("pasiva", "premios_pasiva"),
+        ("activa", "premios_activa"),
+        ("instantanea", "premios_instantanea"),
+    ):
+        bloque = datos.get(clave)
+        if not isinstance(bloque, dict):
+            continue
+        filas_por_tipo[tipo] = [
+            f for f in bloque.get("premios") or [] if isinstance(f, dict) and f.get("fecha")
+        ]
+
+    fechas_reales = [
+        _fecha_corta_a_date(f["fecha"], hoy_date)
+        for filas_tipo in filas_por_tipo.values() for f in filas_tipo
+    ]
+    fechas_reales = [d for d in fechas_reales if d is not None]
+    if not fechas_reales:
+        return [], None
+
+    # La fecha objetivo NUNCA se calcula como "hoy_date - N días" — es
+    # siempre la fecha máxima que de verdad aparece en los datos.
+    fecha_objetivo = max(fechas_reales)
+    fecha_objetivo_corta = fecha_objetivo.strftime("%d-%m")
+
+    filas = []
+    for tipo, filas_tipo in filas_por_tipo.items():
+        for f in filas_tipo:
+            if f.get("fecha") != fecha_objetivo_corta:
+                continue
+            filas.append({
+                "tipo": tipo,
+                "juego": f.get("juego") or "?",
+                "categoria": f.get("categoria") or "?",
+                "cantidad": f.get("cantidad_total") or 0,
+                "importe": f.get("importe_total") or 0,
+            })
+    filas.sort(key=lambda f: f["importe"], reverse=True)
+    return filas, fecha_objetivo
+
+
+def _seccion_premios_repartidos(datos, hoy_date, estilos):
+    """Vista unificada de TODOS los premios del día más reciente
+    disponible (pasiva+activa+instantánea) con un total general, en vez
+    de las 3 tablas separadas que había antes (desglose Tradicional/TPV
+    de pasiva y el resto de detalle). Los premios individuales por
+    encima de UMBRAL_PREMIO_IMPORTANTE se sacan de la tabla y se
+    destacan aparte (negrita + color, ver estilo "premio_importante") —
+    a propósito no aparecen como "una línea más" en la tabla."""
+    flowables = [Paragraph("🏆 PREMIOS REPARTIDOS", estilos["seccion"])]
+    filas, fecha_objetivo = _premios_del_dia(datos, hoy_date)
+
+    if fecha_objetivo is None:
+        flowables.append(Paragraph(
+            "Sin archivos de premios con fecha reconocible.", estilos["normal"],
+        ))
         return flowables
 
-    filas = [["Juego", "Categoría", "Cantidad", "Importe"]]
-    for f in filas_datos:
-        filas.append([
-            f.get("juego") or "?",
-            f.get("categoria") or "?",
-            str(_fmt(f.get("cantidad_total"))),
-            f"{_fmt(f.get('importe_total'))} €",
-        ])
-    tabla = Table(filas, colWidths=[5.5 * cm, 4.5 * cm, 2.3 * cm, 2.3 * cm], repeatRows=1)
-    tabla.setStyle(_estilo_tabla())
-    flowables.append(tabla)
+    fecha_legible = fecha_objetivo.strftime("%d/%m/%Y")
+    if not filas:
+        flowables.append(Paragraph(
+            f"Sin premios registrados para el día más reciente disponible ({fecha_legible}).",
+            estilos["normal"],
+        ))
+        return flowables
+
+    total = round(sum(f["importe"] for f in filas), 2)
+    flowables.append(Paragraph(
+        f"DÍA MÁS RECIENTE DISPONIBLE ({fecha_legible}) — {len(filas)} línea(s) de premio, "
+        f"TOTAL {total:.2f}€",
+        estilos["normal"],
+    ))
+    flowables.append(Spacer(1, 0.15 * cm))
+
+    importantes = [f for f in filas if f["importe"] > UMBRAL_PREMIO_IMPORTANTE]
+    resto = [f for f in filas if f["importe"] <= UMBRAL_PREMIO_IMPORTANTE]
+
+    for f in importantes:
+        flowables.append(Paragraph(
+            f"🎉 ¡Premio importante! {f['juego']} — {f['categoria']}: "
+            f"{f['cantidad']} u., {f['importe']:.2f}€",
+            estilos["premio_importante"],
+        ))
+    if importantes:
+        flowables.append(Spacer(1, 0.2 * cm))
+
+    if resto:
+        filas_tabla = [["Tipo", "Producto", "Categoría", "Cantidad", "Importe"]]
+        for f in resto:
+            filas_tabla.append([
+                f["tipo"], f["juego"], f["categoria"], str(f["cantidad"]), f"{f['importe']:.2f}€",
+            ])
+        tabla = Table(filas_tabla, colWidths=[2.3 * cm, 5.5 * cm, 4 * cm, 2.5 * cm, 2.7 * cm], repeatRows=1)
+        tabla.setStyle(_estilo_tabla())
+        flowables.append(tabla)
     return flowables
 
 
@@ -337,6 +479,50 @@ def _importe_texto_a_float(texto):
         return float(limpio)
     except ValueError:
         return 0.0
+
+
+# Caso especial gvTWYP: nombres de columna reales -> etiqueta legible.
+# Esa tabla no sigue el patrón CONCEPTO/IMPORTE del resto (ver
+# _formatear_fila_liquidacion) — su cabecera real es "TOPii" | "VENTA
+# PROD ONCE" | "RETIRADA", con "TOPii" como nombre del juego, no una
+# etiqueta genérica.
+_ETIQUETAS_COLUMNA_TWYP = {
+    "VENTA PROD ONCE": "Venta prod. ONCE",
+    "RETIRADA": "Retirada",
+}
+
+
+def _formatear_fila_liquidacion(fila):
+    """Convierte una fila genérica de detalle_completo (columnas variables
+    según la tabla: PRODUCTOS CUPÓN/FECHA/IMPORTE, CONCEPTO/IMPORTE...) en
+    una línea legible, sin asumir nombres de columna fijos — el propio
+    portal ya pone las etiquetas legibles como clave o como valor según
+    la tabla, así que no hace falta traducir nada por producto.
+
+    Caso especial (gvTWYP/TOPii): la fila no tiene clave "IMPORTE", pero
+    sí una clave cuyo VALOR es literalmente "IMPORTE" — esa clave es en
+    realidad el nombre del juego (p.ej. {"TOPii": "IMPORTE",
+    "VENTA PROD ONCE": "0,00€", "RETIRADA": "0,00€"}), no una etiqueta
+    genérica de columna, así que se usa como nombre y el resto de
+    columnas se listan con su propia etiqueta en vez de concatenar los
+    valores sin contexto."""
+    importe = fila.get("IMPORTE")
+    if importe is None:
+        clave_juego = next((k for k, v in fila.items() if v == "IMPORTE"), None)
+        if clave_juego is not None:
+            resto = ", ".join(
+                f"{_ETIQUETAS_COLUMNA_TWYP.get(k, k.title())}: {v}"
+                for k, v in fila.items()
+                if k != clave_juego and v not in (None, "")
+            )
+            return f"{clave_juego} — {resto}" if resto else clave_juego
+
+    etiqueta = " - ".join(
+        str(v) for k, v in fila.items() if k != "IMPORTE" and v not in (None, "")
+    )
+    if importe is not None:
+        return f"{etiqueta}: {importe}" if etiqueta else str(importe)
+    return etiqueta or "(sin datos)"
 
 
 def _seccion_liquidacion(datos, estilos):
@@ -354,13 +540,28 @@ def _seccion_liquidacion(datos, estilos):
     saldo = _importe_texto_a_float(bloque.get("saldo_acreedor"))
     importe = _importe_texto_a_float(bloque.get("importe"))
 
-    if saldo > 0:
-        texto = f"Saldo acreedor: {bloque.get('saldo_acreedor')}"
-    elif importe > 0:
+    # El portal aplica el saldo acreedor DENTRO del cálculo de "importe a
+    # liquidar" (ver texto del propio informe: "...incluyendo el saldo
+    # deudor/acreedor aplicado en este día"), no son alternativas: si hay
+    # importe a liquidar, es el dato real a pagar y debe mostrarse
+    # siempre, con el saldo acreedor como aclaración de que ya está
+    # descontado — nunca al revés, o se omite el importe real a pagar.
+    if importe > 0:
         texto = f"Importe a liquidar: {bloque.get('importe')}"
+        if saldo > 0:
+            texto += f" (incluye saldo acreedor a tu favor ya aplicado: {bloque.get('saldo_acreedor')})"
+    elif saldo > 0:
+        # caso raro: solo hay saldo acreedor, sin importe a liquidar
+        texto = f"Saldo acreedor a tu favor: {bloque.get('saldo_acreedor')}"
     else:
         texto = "Sin liquidación hoy"
     flowables.append(Paragraph(texto, estilos["normal"]))
+
+    for grupo in bloque.get("detalle_completo") or []:
+        filas = grupo.get("filas") or []
+        for fila in filas:
+            flowables.append(Paragraph(f"• {_formatear_fila_liquidacion(fila)}", estilos["bullet"]))
+
     return flowables
 
 
@@ -467,9 +668,115 @@ def _seccion_cuadre_diario(hoy_date, estilos):
     return flowables
 
 
+DIAS_AVISO_PROXIMO = 15
+
+
+def _seccion_avisos_proximos(hoy_date, estilos):
+    """Revisa todos los JSON de Comunicaciones TPV ya procesados por
+    ocr_comunicaciones.py y muestra los que mencionan una fecha dentro de
+    los próximos DIAS_AVISO_PROXIMO días — p.ej. la fecha en la que un
+    juego se da por vendido tras finalizar su venta voluntaria. Las
+    fechas las transcribe el modelo de visión tal cual (ver
+    ocr_comunicaciones.py); decidir cuáles caen en la ventana de aviso es
+    un cálculo de fechas que hace Python, no el modelo."""
+    flowables = [Paragraph("AVISOS PRÓXIMOS", estilos["seccion"])]
+    limite = hoy_date + timedelta(days=DIAS_AVISO_PROXIMO)
+
+    avisos = []
+    if COMUNICACIONES_PATH.exists():
+        for ruta_json in sorted(COMUNICACIONES_PATH.glob("*.json")):
+            try:
+                with open(ruta_json) as f:
+                    datos_aviso = json.load(f)
+            except (json.JSONDecodeError, OSError):
+                continue
+            for entrada in datos_aviso.get("fechas_mencionadas") or []:
+                fecha_txt = entrada.get("fecha")
+                if not fecha_txt:
+                    continue
+                try:
+                    fecha = datetime.strptime(fecha_txt, "%d/%m/%Y").date()
+                except ValueError:
+                    continue
+                if hoy_date <= fecha <= limite:
+                    avisos.append((fecha, datos_aviso, entrada))
+
+    if not avisos:
+        flowables.append(Paragraph(
+            f"Sin avisos con fechas relevantes en los próximos {DIAS_AVISO_PROXIMO} días.",
+            estilos["normal"],
+        ))
+        return flowables
+
+    avisos.sort(key=lambda t: t[0])
+    for fecha, datos_aviso, entrada in avisos:
+        juego = datos_aviso.get("juego") or datos_aviso.get("tipo_comunicacion") or "?"
+        flowables.append(Paragraph(
+            f"⚠️ {fecha.strftime('%d/%m/%Y')} — {juego}: {entrada.get('descripcion', '')}",
+            estilos["bullet"],
+        ))
+    return flowables
+
+
+DIAS_DEVOLUCION_RECIENTE = 7
+
+
+def _seccion_devoluciones_recientes(hoy_date, estilos):
+    """Revisa todos los JSON de DEVOLUCIÓN LIBROS ya procesados por
+    ocr_devolucion_libros.py y muestra los que tienen fecha dentro de los
+    últimos DIAS_DEVOLUCION_RECIENTE días — tanto avisos de finalización
+    de venta voluntaria (tipo "aviso_inicio") como justificantes de envío
+    a Correos (tipo "retorno_completado"). Igual que en
+    _seccion_avisos_proximos, decidir qué cae en la ventana es un cálculo
+    de fechas que hace Python, no el modelo de visión."""
+    flowables = [Paragraph("DEVOLUCIONES DE LIBROS RECIENTES", estilos["seccion"])]
+    limite_inferior = hoy_date - timedelta(days=DIAS_DEVOLUCION_RECIENTE)
+
+    eventos = []
+    if DEVOLUCION_LIBROS_PATH.exists():
+        for ruta_json in sorted(DEVOLUCION_LIBROS_PATH.glob("*.json")):
+            try:
+                with open(ruta_json) as f:
+                    datos_evento = json.load(f)
+            except (json.JSONDecodeError, OSError):
+                continue
+            fecha_txt = datos_evento.get("fecha")
+            if not fecha_txt:
+                continue
+            try:
+                fecha = datetime.strptime(fecha_txt, "%d/%m/%Y").date()
+            except ValueError:
+                continue
+            if limite_inferior <= fecha <= hoy_date:
+                eventos.append((fecha, datos_evento))
+
+    if not eventos:
+        flowables.append(Paragraph(
+            f"Sin devoluciones de libros en los últimos {DIAS_DEVOLUCION_RECIENTE} días.",
+            estilos["normal"],
+        ))
+        return flowables
+
+    eventos.sort(key=lambda t: t[0])
+    for fecha, datos_evento in eventos:
+        libros = datos_evento.get("libros_devueltos") or []
+        if datos_evento.get("tipo") == "retorno_completado":
+            juegos = sorted({l.get("producto") for l in libros if l.get("producto")})
+            texto = (
+                f"📬 {fecha.strftime('%d/%m/%Y')} — Retorno completado: "
+                f"{len(libros)} libro(s) enviados a Correos"
+                + (f" ({', '.join(juegos)})" if juegos else "")
+            )
+        else:
+            juego = datos_evento.get("juego") or "?"
+            texto = f"📬 {fecha.strftime('%d/%m/%Y')} — Aviso de finalización de venta voluntaria: {juego}"
+            if libros:
+                texto += f" ({len(libros)} libro(s) ya retirados)"
+        flowables.append(Paragraph(texto, estilos["bullet"]))
+    return flowables
+
+
 def generar_informe_pdf(datos, datos_agenda, hoy_date, destino):
-    ayer = (hoy_date - timedelta(days=1)).strftime("%d-%m")
-    ayer_legible = (hoy_date - timedelta(days=1)).strftime("%d/%m/%Y")
     estilos = _crear_estilos()
 
     doc = SimpleDocTemplate(
@@ -482,13 +789,14 @@ def generar_informe_pdf(datos, datos_agenda, hoy_date, destino):
     story.extend(_cabecera(hoy_date, estilos))
     story.extend(_tablas_paquetes(datos, estilos))
     story.extend(_tabla_almacen(datos, estilos))
-    story.extend(_tabla_premios_pasiva(datos, ayer, ayer_legible, estilos))
-    story.extend(_tabla_premios_plana(datos, "premios_activa", "PREMIOS ACTIVA", ayer, ayer_legible, estilos))
-    story.extend(_tabla_premios_plana(datos, "premios_instantanea", "PREMIOS INSTANTÁNEA", ayer, ayer_legible, estilos))
+    story.extend(_seccion_caducidad_libros(hoy_date, estilos))
+    story.extend(_seccion_premios_repartidos(datos, hoy_date, estilos))
     story.extend(_seccion_liquidacion(datos, estilos))
     story.extend(_lista_alertas(datos, datos_agenda, hoy_date, estilos))
     story.extend(_lista_agenda(datos_agenda, estilos))
     story.extend(_seccion_cuadre_diario(hoy_date, estilos))
+    story.extend(_seccion_devoluciones_recientes(hoy_date, estilos))
+    story.extend(_seccion_avisos_proximos(hoy_date, estilos))
 
     doc.build(story)
 

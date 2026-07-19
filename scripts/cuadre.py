@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+# DEPRECATED — sustituido por cuadre_diario.py.
+# No se usa en producción. Mantener solo como referencia
+# histórica. Candidato a borrar en una futura limpieza.
 """
 Cuadre ONCE - Agencia 576 Getafe
 Juan Antonio Panadero Jiménez

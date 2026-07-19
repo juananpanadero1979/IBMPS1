@@ -1,3 +1,5 @@
+> **DEPRECATED** — sustituido por `asistente.py` (el enrutamiento a 5 agentes ya no existe; hay un único asistente que responde directamente). Este archivo ya no lo lee ningún script. Se mantiene solo como referencia histórica, no borrar sin confirmación explícita.
+
 # Agente CEREBRO — Orquestador Principal
 
 ## Rol

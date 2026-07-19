@@ -367,6 +367,46 @@ def extraer_tabla(page, selector="table"):
     )
 
 
+def extraer_todas_tablas(page, selector="table"):
+    """Como extraer_tabla(), pero devuelve TODAS las tablas que coincidan
+    con `selector` (no solo la primera) como lista de
+    {"id": <id del elemento o 'tabla_N' si no tiene>, "filas": [...]}.
+    Se filtran las tablas sin filas de datos (0 filas), que en páginas
+    como el informe de liquidación diaria son tablas de un concepto que
+    no aplica ese día (p.ej. pago de premios, que solo se renderiza si
+    hubo premios) — no vale la pena mantener una lista fija de ids de
+    tabla cuando se puede pedir "todas las tablas visibles" directamente
+    y quedarnos con las que tengan contenido."""
+    return page.evaluate(
+        r"""
+        (selector) => {
+            const textoLimpio = (celda) => {
+                const clon = celda.cloneNode(true);
+                clon.querySelectorAll('table').forEach(t => t.remove());
+                return clon.textContent.replace(/\s+/g, ' ').trim();
+            };
+            const celdasPropias = (fila) => Array.from(fila.children).filter(
+                el => el.tagName === 'TD' || el.tagName === 'TH'
+            );
+            const tablas = Array.from(document.querySelectorAll(selector));
+            return tablas.map((tabla, indice) => {
+                const filas = Array.from(tabla.querySelectorAll(':scope > tbody > tr, :scope > tr'));
+                if (filas.length === 0) return {id: tabla.id || `tabla_${indice}`, filas: []};
+                const cabecera = celdasPropias(filas[0]).map(textoLimpio);
+                const datos = filas.slice(1).map(fila => {
+                    const celdas = celdasPropias(fila).map(textoLimpio);
+                    const obj = {};
+                    cabecera.forEach((nombre, i) => { obj[nombre || `col_${i}`] = celdas[i] ?? null; });
+                    return obj;
+                });
+                return {id: tabla.id || `tabla_${indice}`, filas: datos};
+            }).filter(t => t.filas.length > 0);
+        }
+        """,
+        selector,
+    )
+
+
 # ── Descargas ─────────────────────────────────────────────────────
 
 # Calendario de turnos de Juan Antonio (agencia 576 Getafe):
@@ -459,6 +499,31 @@ def descargar_liquidacion_diaria(page):
 
     tabla_liquidacion = extraer_tabla(page, "#ctl00_ContentPlaceHolder1_gvLiquidacionDiaria")
     tabla_saldo = extraer_tabla(page, "#ctl00_ContentPlaceHolder1_gvSaldoAcreedorDeudor")
+    # Además de esas 2 tablas concretas ya conocidas, la página tiene más
+    # tablas por concepto (gvProductosCupon, gvProductosActivos,
+    # gvInstantanea, gvPagoPremios, gvPagoTarjeta, gvTWYP,
+    # gvIngresoCuenta, gvTotalVentas...) que solo se renderizan si hay
+    # datos ese día — en vez de mantener una lista fija de ids que habría
+    # que descubrir y verificar uno a uno, se piden TODAS las tablas
+    # dentro del área de contenido y se guardan tal cual.
+    #
+    # OJO con el contenedor: "#ctl00_ContentPlaceHolder1" (usado antes)
+    # NO es un id real en el HTML — es un <asp:ContentPlaceHolder> de
+    # ASP.NET, que no genera envoltorio propio en el DOM, así que ese
+    # selector no encontraba NUNCA ninguna tabla (confirmado con
+    # diagnóstico en vivo el 2026-07-10: 0 tablas en 5 días seguidos
+    # pese a que el PDF sí mostraba desglose real). El contenedor que sí
+    # existe de verdad envolviendo las 10 tablas es
+    # "#ctl00_ContentPlaceHolder1_dvContenido" (el div de contenido real
+    # que ASP.NET renderiza dentro de ese placeholder).
+    PREFIJO_ID_PORTAL = "ctl00_ContentPlaceHolder1_"
+    IDS_YA_CAPTURADOS = {"gvLiquidacionDiaria", "gvSaldoAcreedorDeudor"}
+    tablas_brutas = extraer_todas_tablas(page, "#ctl00_ContentPlaceHolder1_dvContenido table")
+    detalle_completo = [
+        {"tabla": t["id"].removeprefix(PREFIJO_ID_PORTAL), "filas": t["filas"]}
+        for t in tablas_brutas
+        if t["id"].removeprefix(PREFIJO_ID_PORTAL) not in IDS_YA_CAPTURADOS
+    ]
 
     importe_texto = tabla_liquidacion[0]["IMPORTE"] if tabla_liquidacion else "0,00€"
     saldo_texto = tabla_saldo[0]["IMPORTE"] if tabla_saldo else "0,00€"
@@ -480,6 +545,7 @@ def descargar_liquidacion_diaria(page):
         "mensaje": mensaje,
         "tabla_liquidacion": tabla_liquidacion,
         "tabla_saldo_acreedor": tabla_saldo,
+        "detalle_completo": detalle_completo,
     }
     with open(destino, "w") as f:
         json.dump(datos, f, indent=2, ensure_ascii=False)

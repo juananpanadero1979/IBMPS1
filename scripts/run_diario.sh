@@ -11,7 +11,7 @@
 #
 # Invocado por el LaunchAgent com.ibmps1.informe
 # (~/Library/LaunchAgents/com.ibmps1.informe.plist) cada mañana a las
-# 07:00. No se ejecuta manualmente salvo para pruebas.
+# 08:00. No se ejecuta manualmente salvo para pruebas.
 #
 # Cada paso se ejecuta aunque el anterior falle (sin "set -e"): si
 # portal_once.py no descarga algo, parsear_html_portal.py simplemente
@@ -36,6 +36,26 @@ echo "capturar_html_portal.py salida: $?"
 echo "--- parsear_html_portal.py ---"
 "$PYTHON3" parsear_html_portal.py
 echo "parsear_html_portal.py salida: $?"
+
+echo "--- alertas_caducidad.py ---"
+"$PYTHON3" alertas_caducidad.py
+echo "alertas_caducidad.py salida: $?"
+
+echo "--- ocr_tickets.py ---"
+"$PYTHON3" ocr_tickets.py
+echo "ocr_tickets.py salida: $?"
+
+echo "--- ocr_comunicaciones.py ---"
+"$PYTHON3" ocr_comunicaciones.py
+echo "ocr_comunicaciones.py salida: $?"
+
+echo "--- ocr_devolucion_libros.py ---"
+"$PYTHON3" ocr_devolucion_libros.py
+echo "ocr_devolucion_libros.py salida: $?"
+
+echo "--- cuadre_diario.py ---"
+"$PYTHON3" cuadre_diario.py
+echo "cuadre_diario.py salida: $?"
 
 echo "--- informe_manana.py ---"
 "$PYTHON3" informe_manana.py

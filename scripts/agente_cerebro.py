@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+# DEPRECATED — sustituido por asistente.py.
+# No se usa en producción. Mantener solo como referencia
+# histórica. Candidato a borrar en una futura limpieza.
 """
 Agente CEREBRO - Orquestador del sistema multi-agente IBMPS1
 Juan Antonio Panadero Jiménez

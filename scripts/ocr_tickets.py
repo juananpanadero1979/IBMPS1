@@ -487,6 +487,28 @@ def _llamar_nvidia(api_key, contenido, max_tokens=4096):
 MAX_INTENTOS_VISION = 3
 MAX_INTENTOS_TOTAL_VACIO = 2
 
+# Margen de seguridad bajo el límite real de 10 MB (10.485.760 bytes) de
+# la API de Claude Vision para el tamaño de una imagen en base64.
+LIMITE_BYTES_IMAGEN = 9_000_000
+
+
+def _imagen_de_pagina(pagina):
+    """Renderiza la página a PNG a 200dpi (girando 270º si viene
+    apaisada, ver más abajo). Si el resultado supera LIMITE_BYTES_IMAGEN
+    (algunos escaneos vienen en páginas muy grandes y superan los 10 MB
+    que admite la API de Claude), reduce el zoom progresivamente y vuelve
+    a renderizar hasta que quepa, en vez de dejar que la llamada falle y
+    caiga al fallback de NVIDIA por accidente."""
+    apaisada = pagina.rect.width > pagina.rect.height
+    zoom = 200 / 72
+    while True:
+        matriz = fitz.Matrix(zoom, zoom).prerotate(270) if apaisada else fitz.Matrix(zoom, zoom)
+        pix = pagina.get_pixmap(matrix=matriz)
+        datos_png = pix.tobytes("png")
+        if len(datos_png) <= LIMITE_BYTES_IMAGEN or zoom <= 50 / 72:
+            return base64.b64encode(datos_png).decode("ascii")
+        zoom *= 0.8
+
 
 def _extraer_pagina_con_vision(clave_claude, pagina, num_pagina=None):
     """Convierte la página a imagen SOLO si no tiene capa de texto nativa
@@ -520,11 +542,7 @@ def _extraer_pagina_con_vision(clave_claude, pagina, num_pagina=None):
         bloques_claude = [{"type": "text", "text": texto_pagina}]
         contenido_nvidia = [{"type": "text", "text": texto_pagina}]
     else:
-        apaisada = pagina.rect.width > pagina.rect.height
-        zoom = 200 / 72
-        matriz = fitz.Matrix(zoom, zoom).prerotate(270) if apaisada else fitz.Matrix(zoom, zoom)
-        pix = pagina.get_pixmap(matrix=matriz)
-        imagen_b64 = base64.b64encode(pix.tobytes("png")).decode("ascii")
+        imagen_b64 = _imagen_de_pagina(pagina)
         bloques_claude = [{
             "type": "image",
             "source": {"type": "base64", "media_type": "image/png", "data": imagen_b64},
@@ -637,11 +655,24 @@ def procesar_ticket(ruta_pdf, clave_claude):
     return resultado
 
 
+_RE_NOMBRE_TICKET = re.compile(r"^\d{6}\.pdf$", re.IGNORECASE)
+
+
 def procesar_todos(carpeta=TICKETS_PATH):
+    """Solo procesa PDFs con el patrón DDMMAA.pdf de los tickets de venta
+    normales — otros documentos que puedan colarse en esta carpeta (p.ej.
+    informes de retorno de libros, con nombres como
+    "Retornolibros070726.pdf" o "L58 PALABRAS GANADORAS.pdf") no siguen
+    este esquema de 5 páginas y deben tratarse con su propio script
+    (ver ocr_devolucion_libros.py)."""
     clave_claude = _clave_claude()
-    pdfs = sorted(carpeta.glob("*.pdf"))
+    todos_los_pdf = sorted(carpeta.glob("*.pdf"))
+    pdfs = [p for p in todos_los_pdf if _RE_NOMBRE_TICKET.match(p.name)]
+    ignorados = [p for p in todos_los_pdf if p not in pdfs]
+    for p in ignorados:
+        print(f"--- {p.name} ---\n  ⏭️  Ignorado (no sigue el patrón DDMMAA.pdf de ticket de venta)")
     if not pdfs:
-        print(f"No hay PDFs en {carpeta}")
+        print(f"No hay PDFs de ticket (DDMMAA.pdf) pendientes en {carpeta}")
         return []
 
     resultados = []
