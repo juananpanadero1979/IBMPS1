@@ -128,8 +128,6 @@ def _leer_keychain(servicio, cuenta):
 
 
 def _clave_claude():
-    print(f"DEBUG ENV: {os.environ.get('ANTHROPIC_API_KEY', 'NO ENCONTRADA')[:20]}", file=sys.stderr)
-
     # Primero, variable de entorno (evita depender del Keychain por
     # completo en sesiones sin interfaz gráfica, p.ej. SSH).
     api_key = os.environ.get("ANTHROPIC_API_KEY")
