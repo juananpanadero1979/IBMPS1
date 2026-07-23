@@ -672,6 +672,14 @@ def _seccion_cuadre_diario(hoy_date, estilos):
         estilos["bullet"],
     ))
 
+    if resultado.get("revision_manual_necesaria"):
+        flowables.append(Paragraph(
+            "🔴 Ticket marcado como revision_manual_necesaria — ni siquiera los propios "
+            "datos del ticket son consistentes entre sí. Hace falta mirar el ticket físico.",
+            estilos["normal"],
+        ))
+        return flowables
+
     if resultado.get("ocr_revision_pendiente"):
         flowables.append(Paragraph(
             "🔶 Ticket marcado como ocr_revision_pendiente — la página RESUMEN salió mal "

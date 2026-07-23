@@ -151,6 +151,7 @@ def calcular_cuadre_diario(fecha_dt=None):
         }
 
     ocr_revision_pendiente = bool(ticket.get("ocr_revision_pendiente"))
+    revision_manual_necesaria = bool(ticket.get("revision_manual_necesaria"))
 
     ventas_total = ticket.get("ventas", {}).get("total") or 0.0
     devoluciones_total = ticket.get("devoluciones", {}).get("total") or 0.0
@@ -184,6 +185,7 @@ def calcular_cuadre_diario(fecha_dt=None):
         "origen": origen,
         "diferencia": diferencia,
         "ocr_revision_pendiente": ocr_revision_pendiente,
+        "revision_manual_necesaria": revision_manual_necesaria,
     }
 
 
@@ -198,6 +200,16 @@ def formatear_resultado(resultado):
     lineas.append(
         f"RESULTADO DEL DÍA: {resultado['resultado_dia']:.2f}€  (origen: {resultado['origen']})"
     )
+
+    if resultado.get("revision_manual_necesaria"):
+        lineas.append(
+            "🔴 Este ticket está marcado como revision_manual_necesaria — ni siquiera los "
+            "propios datos del ticket son internamente consistentes (la fórmula no cuadra "
+            "contra resumen.resultado con ningún motor de OCR probado). Hace falta mirar el "
+            "ticket físico, no reprocesarlo automáticamente. No se verifica la fórmula contra "
+            "un dato que ya se sabe corrupto."
+        )
+        return "\n".join(lineas)
 
     if resultado.get("ocr_revision_pendiente"):
         lineas.append(
