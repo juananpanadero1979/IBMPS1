@@ -54,6 +54,17 @@ corrección de terminología aplicada el 2026-07-20 (antes se llamaba
 Todo el cálculo es Python puro (regla del proyecto: "los cálculos del
 cuadre ONCE se hacen SIEMPRE con Python, nunca con IA").
 
+SEGUNDA OPINIÓN AUTOMÁTICA CON MISTRAL OCR (2026-07-23) — ver
+verificar_segunda_opinion(): cuando el ticket del día no cuadra con la
+fórmula, antes de marcarlo ocr_revision_pendiente se reprocesa
+automáticamente el PDF con ocr_tickets_mistral.py (Mistral OCR) como
+segunda opinión, y solo si Mistral TAMBIÉN falla se marca para revisión.
+Esto se ejecuta únicamente desde el bloque __main__ (es decir, desde
+run_diario.sh a las 08:00) — calcular_cuadre_diario() en sí NO llama a
+Mistral ni reescribe el JSON del ticket, para que asistente.py (voz) e
+informe_manana.py sigan siendo rápidos y sin llamadas de red ni coste
+como efecto secundario de una simple consulta.
+
 Uso:
     python3 cuadre_diario.py            # cuadre del último ticket disponible
     python3 cuadre_diario.py 040726     # cuadre de una fecha concreta (DDMMAA)
@@ -63,7 +74,10 @@ import json
 import sys
 from datetime import datetime, timedelta
 
+import ocr_tickets_mistral
 from ocr_tickets import TICKETS_PATH
+
+TOLERANCIA_DIFERENCIA = 0.01
 
 
 def _cargar_json(ruta):
@@ -189,6 +203,145 @@ def calcular_cuadre_diario(fecha_dt=None):
     }
 
 
+def _formula_y_diferencia(datos):
+    """A partir de un dict con el esquema de un ticket JSON (venga de
+    Claude o de Mistral), devuelve (formula_calculada, resultado,
+    diferencia) — diferencia es None si no hay resumen.resultado con el
+    que comparar. Reutilizado tanto por calcular_cuadre_diario() como
+    por verificar_segunda_opinion(), para no calcular la fórmula de dos
+    formas distintas."""
+    ventas = datos.get("ventas", {}).get("total") or 0.0
+    premios = datos.get("premios_pagados", {}).get("total") or 0.0
+    rasca = datos.get("pagos_rasca", {}).get("total") or 0.0
+    resultado = datos.get("resumen", {}).get("resultado")
+    formula = round(ventas - premios - rasca, 2)
+    diferencia = round(formula - resultado, 2) if resultado is not None else None
+    return formula, resultado, diferencia
+
+
+def verificar_segunda_opinion(fecha_dt=None):
+    """Paso de mantenimiento diario — llamado SOLO desde el bloque
+    __main__ (es decir, desde run_diario.sh a las 08:00), nunca desde
+    calcular_cuadre_diario(), para no disparar una llamada de pago a
+    Mistral ni reescribir el JSON del ticket como efecto secundario de
+    una pregunta de voz (asistente.py) o de generar el PDF matutino
+    (informe_manana.py) — ambos llaman a calcular_cuadre_diario()
+    directamente y deben seguir siendo rápidos y sin coste de red.
+
+    Si el ticket (el más reciente, o el de fecha_dt) no cuadra con la
+    fórmula y todavía no se ha probado un segundo motor de OCR en él
+    (sin "mistral_verificado" en su JSON), procesa el PDF original con
+    Mistral OCR (ocr_tickets_mistral.py) ANTES de marcarlo
+    ocr_revision_pendiente:
+
+      - Si Mistral SÍ cuadra -> sustituye ventas, devoluciones,
+        premios_pagados, pagos_tarjeta, pagos_rasca, resumen y
+        libros_vendidos por los datos de Mistral, sin ninguna alerta
+        (igual que se hizo a mano el 2026-07-23 con 050626 y 240526).
+      - Si Mistral tampoco cuadra pero coincide con lo que ya leyó
+        Claude -> ocr_revision_pendiente=True (los dos motores fallan
+        igual, hace falta reprocesar/revisar).
+      - Si Mistral tampoco cuadra Y además da un resultado DISTINTO al
+        de Claude -> revision_manual_necesaria=True (ni los propios
+        datos son consistentes entre motores — como pasó con 250526).
+
+    En los tres casos se marca "mistral_verificado": true para no volver
+    a gastar una llamada a Mistral en este ticket en ejecuciones futuras
+    (control de coste: Mistral solo se llama cuando Claude falla, nunca
+    de forma rutinaria en todos los tickets).
+
+    No hace nada (sin llamar a Mistral) si: no hay ticket, no hay
+    resumen.resultado con el que comparar (fórmula de respaldo), el
+    ticket ya cuadra, el ticket ya se intentó antes
+    ("mistral_verificado" ya presente), o no hay PDF original con el
+    que reprocesar."""
+    if fecha_dt is None:
+        fecha_encontrada = ticket_mas_reciente()
+        if fecha_encontrada is None:
+            return
+        fecha_dt = datetime.combine(fecha_encontrada, datetime.min.time())
+
+    ruta_json = TICKETS_PATH / f"{fecha_dt.strftime('%d%m%y')}.json"
+    ticket = _cargar_json(ruta_json)
+    if ticket is None or ticket.get("mistral_verificado"):
+        return
+
+    _, resultado_claude, diferencia_claude = _formula_y_diferencia(ticket)
+    if resultado_claude is None or abs(diferencia_claude) < TOLERANCIA_DIFERENCIA:
+        return
+
+    ruta_pdf = TICKETS_PATH / f"{fecha_dt.strftime('%d%m%y')}.pdf"
+    if not ruta_pdf.exists():
+        return
+
+    hoy = datetime.now().strftime("%Y-%m-%d")
+    print(
+        f"  cuadre_diario.py: {ruta_json.name} no cuadra con la fórmula "
+        f"(diferencia {diferencia_claude:.2f}€) — probando segunda opinión con Mistral OCR..."
+    )
+
+    try:
+        api_key = ocr_tickets_mistral._leer_clave_mistral()
+        datos_mistral = ocr_tickets_mistral.procesar_ticket_mistral(ruta_pdf, api_key)
+    except Exception as e:
+        print(
+            f"  ⚠️  Segunda opinión con Mistral falló ({e}) — se deja el ticket sin marcar "
+            f"para reintentarlo en la próxima ejecución."
+        )
+        return
+
+    _, resultado_mistral, diferencia_mistral = _formula_y_diferencia(datos_mistral)
+
+    ticket.pop("ocr_revision_pendiente", None)
+    ticket.pop("revision_manual_necesaria", None)
+    ticket["mistral_verificado"] = True
+
+    if diferencia_mistral is not None and abs(diferencia_mistral) < TOLERANCIA_DIFERENCIA:
+        for clave in ("ventas", "devoluciones", "premios_pagados", "pagos_tarjeta",
+                      "pagos_rasca", "resumen", "libros_vendidos"):
+            if clave in datos_mistral:
+                ticket[clave] = datos_mistral[clave]
+        ticket["ocr_correccion"] = (
+            f"Corregido automáticamente el {hoy} con Mistral OCR (segunda opinión "
+            f"automática, cuadre_diario.py) tras detectar que Claude no cuadraba con la "
+            f"fórmula (diferencia {diferencia_claude:.2f}€)."
+        )
+        print(f"  ✅ Mistral sí cuadra — JSON de {ruta_json.name} corregido automáticamente.")
+    else:
+        coinciden = (
+            resultado_mistral is not None
+            and abs(round(resultado_mistral - resultado_claude, 2)) < TOLERANCIA_DIFERENCIA
+        )
+        if coinciden:
+            ticket["ocr_revision_pendiente"] = True
+            ticket["ocr_correccion"] = (
+                f"Segunda opinión automática el {hoy}: Mistral OCR tampoco cuadra con la "
+                f"fórmula (diferencia {diferencia_mistral:.2f}€) y coincide con lo que ya "
+                f"leyó Claude (resultado {resultado_claude:.2f}€) — necesita "
+                f"reprocesarse/revisarse."
+            )
+            print(
+                f"  🔶 Mistral tampoco cuadra (coincide con Claude) — "
+                f"{ruta_json.name} marcado ocr_revision_pendiente."
+            )
+        else:
+            ticket["revision_manual_necesaria"] = True
+            texto_mistral = f"{resultado_mistral:.2f}€" if resultado_mistral is not None else "sin resumen.resultado"
+            ticket["motivo_revision_manual"] = (
+                f"Segunda opinión automática el {hoy}: ni Claude ({resultado_claude:.2f}€) "
+                f"ni Mistral ({texto_mistral}) cuadran con la fórmula, y además dan "
+                f"resultados distintos entre sí — hace falta revisión manual del ticket "
+                f"físico."
+            )
+            print(
+                f"  🔴 Mistral tampoco cuadra y da un resultado distinto al de Claude — "
+                f"{ruta_json.name} marcado revision_manual_necesaria."
+            )
+
+    with open(ruta_json, "w") as f:
+        json.dump(ticket, f, ensure_ascii=False, indent=2)
+
+
 def formatear_resultado(resultado):
     lineas = []
     if not resultado.get("ejecutado", True):
@@ -228,7 +381,7 @@ def formatear_resultado(resultado):
             f"= {resultado['formula_calculada']:.2f}€), no se ha podido verificar contra "
             f"un segundo valor."
         )
-    elif abs(dif) < 0.01:
+    elif abs(dif) < TOLERANCIA_DIFERENCIA:
         lineas.append("✅ Cálculo del ticket verificado: coincide con resumen.resultado")
     else:
         signo = "+" if dif > 0 else ""
@@ -249,6 +402,7 @@ if __name__ == "__main__":
     fecha_arg = None
     if len(sys.argv) > 1:
         fecha_arg = datetime.strptime(sys.argv[1], "%d%m%y")
+    verificar_segunda_opinion(fecha_arg)
     resultado = calcular_cuadre_diario(fecha_arg)
     print(formatear_resultado(resultado))
     print()
