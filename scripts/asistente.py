@@ -32,12 +32,14 @@ Uso:
     python3 asistente.py "¿qué tiempo hace hoy en Getafe?"
 """
 
+import difflib
 import json
 import os
 import re
 import signal
 import subprocess
 import sys
+import time
 import unicodedata
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -87,6 +89,7 @@ except Exception:
     agenda = None
 
 AGENTES_PATH = Path(__file__).resolve().parent.parent / "agentes"
+PROGRESO_ESTUDIOS_PATH = Path(__file__).resolve().parent.parent / "datos" / "estudios" / "progreso.json"
 
 KEYCHAIN_SERVICE = "IBMPS1-ClaudeAPI"
 KEYCHAIN_ACCOUNT = "ANTHROPIC_API_KEY"
@@ -184,6 +187,42 @@ TIMEOUT_COMANDO_SISTEMA = 8
 # directamente.
 
 
+LOG_DEBUG_APPS_PATH = Path.home() / "IBMPS1_scripts" / "siri_debug.log"
+
+
+def _log_debug(mensaje):
+    """Log de depuración a FICHERO (append), no solo stdout/stderr —
+    necesario porque cuando el comando llega por el Atajo de Siri real
+    no hay forma de ver la salida en directo como sí se puede con
+    Termius (SSH manual). Nunca lanza excepción: un fallo al escribir el
+    log no debe tumbar el comando de voz."""
+    try:
+        with open(LOG_DEBUG_APPS_PATH, "a", encoding="utf-8") as f:
+            f.write(f"{datetime.now().isoformat(timespec='seconds')} {mensaje}\n")
+    except Exception:
+        pass
+
+
+def _log_contexto_sesion(etiqueta):
+    """Vuelca al log de depuración variables de entorno/sesión
+    relevantes para diagnosticar el bug real reportado el 2026-07-19:
+    por Termius (SSH manual) _abrir_aplicacion_mac()/_cerrar_aplicacion_
+    mac() abren/cierran la app de verdad en pantalla, pero por el Atajo
+    de Siri real solo el mensaje es correcto — la acción no tiene efecto
+    visible. Si el usuario/sesión efectivos difieren entre ambos
+    clientes SSH, debería verse aquí (uid, variables SSH_*, TTY)."""
+    variables = ["USER", "LOGNAME", "HOME", "SSH_CONNECTION", "SSH_CLIENT", "SSH_TTY", "TERM", "PATH"]
+    entorno = {v: os.environ.get(v) for v in variables}
+    id_resultado = _ejecutar_comando_sistema(["id"])
+    tty_resultado = _ejecutar_comando_sistema(["tty"])
+    _log_debug(
+        f"[{etiqueta}] pid={os.getpid()} uid={os.getuid()} entorno={entorno} "
+        f"id=(rc={id_resultado.returncode}) {id_resultado.stdout.strip()!r} "
+        f"tty=(rc={tty_resultado.returncode}) "
+        f"stdout={tty_resultado.stdout.strip()!r} stderr={tty_resultado.stderr.strip()!r}"
+    )
+
+
 def _ejecutar_comando_sistema(args, timeout=TIMEOUT_COMANDO_SISTEMA):
     """subprocess.run con timeout — comprobado en pruebas reales que
     algunas apps (p.ej. DIGI TV) se quedan colgadas indefinidamente al
@@ -256,29 +295,231 @@ def _buscar_app_por_nombre_parcial(nombre_buscado):
     return parciales[0]
 
 
+# Umbral de similitud (ratio 0-1 de difflib.SequenceMatcher) para dar
+# por buena una coincidencia fonética no prevista a mano en
+# ALIAS_FONETICOS_APPS — ajustado empíricamente: "cody"/"kodi" da 0.8,
+# "digi tv"/"digitv" da 0.93 (aunque ese caso ya lo resuelve el
+# matching por substring antes de llegar aquí); 0.6 deja margen para
+# mishearings más toscos sin empezar a confundir apps que no se
+# parecen en nada.
+UMBRAL_SIMILITUD_FONETICA = 0.6
+
+
+def _mejor_coincidencia_difflib(nombre_buscado, candidatos):
+    """Compara `nombre_buscado` (normalizado, sin espacios/acentos)
+    contra una lista de nombres candidatos y devuelve el más parecido
+    por encima de UMBRAL_SIMILITUD_FONETICA, o None si ninguno se
+    acerca lo suficiente. Generaliza ALIAS_FONETICOS_APPS (que cubre a
+    mano los casos ya vistos, p.ej. Kodi/Cody) a cualquier confusión
+    fonética futura no anticipada, sin tener que mantener la lista para
+    siempre."""
+    objetivo = _normalizar(nombre_buscado).replace(" ", "")
+    if not objetivo:
+        return None
+    mejor_nombre, mejor_ratio = None, 0.0
+    for candidato in candidatos:
+        candidato_norm = _normalizar(candidato).replace(" ", "")
+        if not candidato_norm:
+            continue
+        ratio = difflib.SequenceMatcher(None, objetivo, candidato_norm).ratio()
+        if ratio > mejor_ratio:
+            mejor_nombre, mejor_ratio = candidato, ratio
+    return mejor_nombre if mejor_ratio >= UMBRAL_SIMILITUD_FONETICA else None
+
+
+def _apps_instaladas():
+    nombres = []
+    for carpeta in RUTAS_APLICACIONES:
+        if not carpeta.exists():
+            continue
+        for item in carpeta.glob("*.app"):
+            nombres.append(item.stem)
+    return nombres
+
+
+def _listar_procesos():
+    resultado = _ejecutar_comando_sistema(
+        ["osascript", "-e", 'tell application "System Events" to name of every process'],
+    )
+    _log_debug(
+        f"_listar_procesos() -> returncode={resultado.returncode} "
+        f"stdout={resultado.stdout!r} stderr={resultado.stderr!r}"
+    )
+    if resultado.returncode != 0:
+        return []
+    return [p.strip() for p in resultado.stdout.strip().split(", ") if p.strip()]
+
+
+def _nombre_proceso_real(nombre_buscado):
+    """Encuentra el nombre EXACTO del proceso vivo que corresponde a
+    `nombre_buscado`, o None si no hay ninguno corriendo que encaje.
+
+    FIX de un bug real (DIGI TV, 2026-07-19, revisión sistemática):
+    "cierra digi tv" no cerraba nada con la app ya abierta porque
+    `(name of processes) contains "digi tv"` de AppleScript hace una
+    comparación EXACTA de lista, no substring — y el proceso real de
+    DIGI TV (app de la App Store, sandboxed/Wrapper) se llama
+    "DIGITV", sin espacio, muy distinto tanto de lo dicho por voz como
+    del nombre visible del .app ("DIGI TV"). Por eso aquí se compara en
+    3 pasadas, de más a menos estricta: 1) igualdad exacta normalizada
+    (sin espacios/acentos/mayúsculas), 2) substring en cualquier
+    dirección, 3) similitud fonética por difflib como último recurso."""
+    objetivo = _normalizar(nombre_buscado).replace(" ", "")
+    if not objetivo:
+        return None
+    procesos = _listar_procesos()
+    for proceso in procesos:
+        if _normalizar(proceso).replace(" ", "") == objetivo:
+            return proceso
+    for proceso in procesos:
+        proceso_norm = _normalizar(proceso).replace(" ", "")
+        if objetivo in proceso_norm or proceso_norm in objetivo:
+            return proceso
+    return _mejor_coincidencia_difflib(nombre_buscado, procesos)
+
+
+def _proceso_esta_corriendo(nombre_app):
+    """True si hay algún proceso vivo que corresponde a `nombre_app`
+    (ver _nombre_proceso_real — comparación flexible, no la igualdad
+    exacta de lista que hacía fallar el cierre de DIGI TV)."""
+    nombre_real = _nombre_proceso_real(nombre_app)
+    _log_debug(f"_proceso_esta_corriendo({nombre_app!r}) -> nombre_real={nombre_real!r}")
+    return nombre_real is not None
+
+
+def _proceso_vivo_exacto(nombre_proceso):
+    """True si `nombre_proceso` — un nombre YA RESUELTO de forma exacta
+    (ver _nombre_proceso_real) — sigue en la lista de procesos.
+    Comparación EXACTA normalizada, SIN el fallback de difflib.
+
+    FIX de un bug real (2026-07-19, revisión sistemática): usar
+    _nombre_proceso_real (que incluye similitud fonética) para
+    VERIFICAR que un proceso ya identificado ha desaparecido daba falsos
+    positivos — confirmado con "cierra safari": tras cerrarlo de verdad,
+    difflib encontraba otro proceso cualquiera parecido por casualidad
+    a "Safari" entre los que quedaban corriendo, y _forzar_cierre lo
+    interpretaba como que Safari seguía vivo. La similitud fonética
+    solo tiene sentido para RESOLVER qué proceso quiso decir el usuario
+    la primera vez; verificar que uno ya identificado sigue vivo debe
+    ser una igualdad exacta, nunca difusa."""
+    objetivo = _normalizar(nombre_proceso).replace(" ", "")
+    return any(_normalizar(p).replace(" ", "") == objetivo for p in _listar_procesos())
+
+
+def _traer_al_frente(nombre_app):
+    resultado = _ejecutar_comando_sistema(
+        ["osascript", "-e",
+         f'tell application "System Events" to set frontmost of process "{nombre_app}" to true'],
+    )
+    _log_debug(
+        f"_traer_al_frente({nombre_app!r}) -> returncode={resultado.returncode} "
+        f"stdout={resultado.stdout!r} stderr={resultado.stderr!r}"
+    )
+    return resultado.returncode == 0
+
+
+def _activar_por_nombre(nombre):
+    """Intenta `tell application "nombre" to activate`. Devuelve (éxito,
+    ya_estaba_abierta).
+
+    FIX de un bug real (Kodi, 2026-07-19): con una app que tiene varias
+    copias/registros en Launch Services (confirmado con `lsregister
+    -dump`: iCloud, /Applications y hasta un volumen ya desmontado),
+    "tell application by name" falla con el error -43 ("no se ha
+    encontrado el archivo") en cuanto la app YA ESTÁ CORRIENDO, aunque el
+    proceso esté vivo y la app sí exista — AppleScript no logra resolver
+    de forma fiable a qué copia se refiere para activar la instancia ya
+    abierta (el mismo comando SÍ funciona para lanzarla de cero cuando
+    está cerrada). Antes de darla por "no encontrada", si el error es
+    justo ese (-43) se comprueba con System Events si ya hay un proceso
+    vivo con ese nombre y, si lo hay, se trae al frente por esa vía en
+    vez de por "tell application by name"."""
+    resultado = _ejecutar_comando_sistema(
+        ["osascript", "-e", f'tell application "{nombre}" to activate'],
+    )
+    _log_debug(
+        f"_activar_por_nombre({nombre!r}) activate -> returncode={resultado.returncode} "
+        f"stdout={resultado.stdout!r} stderr={resultado.stderr!r}"
+    )
+    if resultado.returncode == 0:
+        return True, False
+    if "-43" in (resultado.stderr or ""):
+        nombre_real_proceso = _nombre_proceso_real(nombre)
+        if nombre_real_proceso is not None:
+            exito_frente = _traer_al_frente(nombre_real_proceso)
+            _log_debug(
+                f"_activar_por_nombre({nombre!r}) -> tras -43, vía frente "
+                f"(proceso real {nombre_real_proceso!r}), éxito={exito_frente}"
+            )
+            return exito_frente, True
+    return False, False
+
+
+# FIX de un bug real (2026-07-19, ver siri_debug.log): el Atajo de Siri
+# real transcribió "abre kodi" como "abre Cody]" — "Kodi" se confunde
+# fonéticamente con "Cody" en el reconocimiento de voz en inglés, y algo
+# en el propio Atajo dejó un corchete de cierre suelto pegado al final.
+# _RE_ABRIR_APP solo quita puntuación de frase (.!?¡¿) del final, no
+# corchetes sueltos, así que "Cody]" llegaba tal cual a
+# _buscar_app_por_nombre_parcial, que no lo reconocía. Este alias
+# resuelve las variantes fonéticas conocidas ANTES de intentar nada más
+# — la comparación quita también caracteres no alfabéticos sueltos en
+# los bordes (el corchete incluido) para no depender de que el Atajo
+# mande el texto perfectamente limpio.
+ALIAS_FONETICOS_APPS = {
+    "cody": "Kodi",
+    "codi": "Kodi",
+    "kodi": "Kodi",
+}
+
+
+def _resolver_alias_fonetico(nombre_app):
+    clave = re.sub(r"^[^a-z]+|[^a-z]+$", "", _normalizar(nombre_app).strip())
+    return ALIAS_FONETICOS_APPS.get(clave, nombre_app)
+
+
 def _abrir_aplicacion_mac(nombre_app):
-    """Intenta `tell application "nombre_app" to activate` vía osascript;
-    si falla, busca una coincidencia parcial en /Applications (y
-    variantes) y reintenta con el nombre real encontrado. Devuelve
-    (éxito, nombre_realmente_usado).
+    """Intenta `_activar_por_nombre(nombre_app)`; si falla, busca una
+    coincidencia parcial en /Applications (y variantes) y reintenta con
+    el nombre real encontrado. Devuelve (éxito, nombre_realmente_usado,
+    ya_estaba_abierta).
 
     osascript/Apple Events en vez de `open -a` o `launchctl asuser`: ver
     aviso arriba de TIMEOUT_COMANDO_SISTEMA — ambas alternativas se
-    probaron por SSH real y ninguna hacía aparecer la app en pantalla."""
-    resultado = _ejecutar_comando_sistema(
-        ["osascript", "-e", f'tell application "{nombre_app}" to activate'],
-    )
-    if resultado.returncode == 0:
-        return True, nombre_app
+    probaron por SSH real y ninguna hacía aparecer la app en pantalla.
+
+    Logging de depuración (2026-07-19, ver LOG_DEBUG_APPS_PATH): bug
+    real reportado en el que, invocando por el Atajo de Siri real (no
+    Termius/SSH manual), el mensaje devuelto es correcto ("Abriendo X")
+    pero la app no llega a abrirse de verdad en pantalla — para
+    diagnosticarlo hace falta ver el returncode/stdout/stderr exacto de
+    cada osascript y el contexto de sesión (usuario, variables SSH_*)
+    de esa invocación en concreto, que con Termius sí se ve en directo
+    pero con el Atajo real no."""
+    nombre_app_original = nombre_app
+    nombre_app = _resolver_alias_fonetico(nombre_app)
+    _log_contexto_sesion(f"_abrir_aplicacion_mac({nombre_app_original!r})")
+    if nombre_app != nombre_app_original:
+        _log_debug(f"_abrir_aplicacion_mac: alias fonético {nombre_app_original!r} -> {nombre_app!r}")
+    exito, ya_abierta = _activar_por_nombre(nombre_app)
+    if exito:
+        _log_debug(f"_abrir_aplicacion_mac({nombre_app!r}) -> éxito directo, ya_abierta={ya_abierta}")
+        return True, nombre_app, ya_abierta
 
     nombre_real = _buscar_app_por_nombre_parcial(nombre_app)
     if nombre_real is None:
-        return False, nombre_app
+        nombre_real = _mejor_coincidencia_difflib(nombre_app, _apps_instaladas())
+        _log_debug(f"_abrir_aplicacion_mac({nombre_app!r}) -> similitud fonética -> {nombre_real!r}")
+    _log_debug(f"_abrir_aplicacion_mac({nombre_app!r}) -> fallback nombre_real={nombre_real!r}")
+    if nombre_real is None:
+        return False, nombre_app, False
 
-    resultado = _ejecutar_comando_sistema(
-        ["osascript", "-e", f'tell application "{nombre_real}" to activate'],
+    exito, ya_abierta = _activar_por_nombre(nombre_real)
+    _log_debug(
+        f"_abrir_aplicacion_mac({nombre_app!r}) -> resultado final tras fallback: "
+        f"éxito={exito} nombre_real={nombre_real!r} ya_abierta={ya_abierta}"
     )
-    return resultado.returncode == 0, nombre_real
+    return exito, nombre_real, ya_abierta
 
 
 _RE_CERRAR_APP = re.compile(r"\b(?:cierra|sal\s+de)\s+(.+?)\s*[.!?¡¿]*\s*$", re.IGNORECASE)
@@ -296,24 +537,94 @@ def _detectar_comando_cerrar_app(pregunta):
     return nombre or None
 
 
+def _pids_proceso(nombre):
+    resultado = _ejecutar_comando_sistema(["pgrep", "-ix", nombre])
+    if resultado.returncode != 0:
+        return []
+    return [p for p in resultado.stdout.split() if p]
+
+
+def _matar_proceso_forzado(nombre):
+    for pid in _pids_proceso(nombre):
+        _ejecutar_comando_sistema(["kill", "-9", pid])
+
+
+def _forzar_cierre(nombre_mostrar, nombre_proceso):
+    """Cierra el proceso vivo `nombre_proceso`, ESCALANDO hasta
+    confirmar que ha desaparecido de verdad, en vez de fiarse del exit
+    code de `quit` — se comprobó en pruebas reales que `tell
+    application "X" to quit` puede devolver éxito (exit=0) sin matar el
+    proceso. Escalada: 1) quit por nombre visible (`nombre_mostrar`,
+    p.ej. "DIGI TV" — el que mejor resuelve Launch Services), 2)
+    reintento del mismo quit, 3) `tell application "System Events" to
+    quit process` usando el nombre EXACTO del proceso (`nombre_proceso`,
+    p.ej. "DIGITV" — necesario porque System Events no acepta el nombre
+    visible si difiere del proceso real, ver _nombre_proceso_real), 4)
+    `kill -9` por PID como último recurso. Devuelve True solo si al
+    final se confirma que el proceso ya no existe — verificación con
+    _proceso_vivo_exacto (igualdad exacta, NUNCA difflib: ver el aviso
+    ahí, usar coincidencia difusa para comprobar que un proceso ya
+    identificado ha desaparecido daba falsos positivos)."""
+    for comando in (
+        ["osascript", "-e", f'tell application "{nombre_mostrar}" to quit'],
+        ["osascript", "-e", f'tell application "{nombre_mostrar}" to quit'],
+        ["osascript", "-e", f'tell application "System Events" to quit process "{nombre_proceso}"'],
+    ):
+        _ejecutar_comando_sistema(comando)
+        if not _proceso_vivo_exacto(nombre_proceso):
+            return True
+
+    _matar_proceso_forzado(nombre_proceso)
+    return not _proceso_vivo_exacto(nombre_proceso)
+
+
 def _cerrar_aplicacion_mac(nombre_app):
-    """`tell application "X" to quit` tal cual; si falla, igual que
-    _abrir_aplicacion_mac, busca coincidencia parcial en /Applications
-    antes de rendirse. Devuelve (éxito, nombre_realmente_usado)."""
-    resultado = _ejecutar_comando_sistema(
-        ["osascript", "-e", f'tell application "{nombre_app}" to quit'],
-    )
-    if resultado.returncode == 0:
-        return True, nombre_app
+    """Cierra `nombre_app`, verificando SIEMPRE con System Events en vez
+    de fiarse del exit code de osascript — se comprobó en pruebas
+    reales que `tell application "X" to quit` puede devolver éxito sin
+    matar el proceso, e incluso con un nombre totalmente inventado (no
+    resuelve ni lanza nada, pero tampoco da error). Por eso la
+    comprobación de "¿está corriendo?" va SIEMPRE antes de intentar
+    nada, nunca después.
+
+    FIX de un bug real (DIGI TV, 2026-07-19): "cierra digi tv" con la
+    app ya abierta no la cerraba porque el nombre de proceso real
+    ("DIGITV") no coincide ni con lo dicho por voz ni con el nombre del
+    .app — ver _nombre_proceso_real. Aquí se resuelve el nombre EXACTO
+    del proceso vivo antes de intentar nada, y ese nombre (no el
+    dicho/mostrado) es el que se usa para las vías de escalada de
+    _forzar_cierre que lo requieren (System Events, kill).
+
+    Si `nombre_app` no coincide con ningún proceso vivo, busca
+    coincidencia parcial (y si tampoco, por similitud fonética) en
+    /Applications para distinguir una app real que simplemente no
+    estaba abierta de un nombre que no existe.
+
+    Devuelve (estado, nombre_realmente_usado), con estado en:
+    - "cerrada": estaba corriendo y se confirmó que ya no lo está.
+    - "atascada": estaba corriendo pero no se pudo cerrar tras agotar
+      la escalada de _forzar_cierre (caso límite, no debería pasar
+      salvo que kill -9 falle).
+    - "ya_cerrada": es una app real (existe en disco) pero no estaba
+      corriendo — no hay nada que cerrar.
+    - "no_encontrada": el nombre no resuelve a ningún proceso vivo ni a
+      ninguna app real en disco."""
+    nombre_app = _resolver_alias_fonetico(nombre_app)
+    nombre_proceso = _nombre_proceso_real(nombre_app)
+    if nombre_proceso is not None:
+        return ("cerrada" if _forzar_cierre(nombre_app, nombre_proceso) else "atascada"), nombre_app
 
     nombre_real = _buscar_app_por_nombre_parcial(nombre_app)
     if nombre_real is None:
-        return False, nombre_app
+        nombre_real = _mejor_coincidencia_difflib(nombre_app, _apps_instaladas())
+    if nombre_real is None:
+        return "no_encontrada", nombre_app
 
-    resultado = _ejecutar_comando_sistema(
-        ["osascript", "-e", f'tell application "{nombre_real}" to quit'],
-    )
-    return resultado.returncode == 0, nombre_real
+    nombre_proceso = _nombre_proceso_real(nombre_real)
+    if nombre_proceso is not None:
+        return ("cerrada" if _forzar_cierre(nombre_real, nombre_proceso) else "atascada"), nombre_real
+
+    return "ya_cerrada", nombre_real
 
 
 # ── Comando de voz: control multimedia (teclas de medios del sistema) ─
@@ -368,11 +679,15 @@ def _pulsar_tecla_media(codigo_tecla):
 
 PALABRAS_MEDIA_SIGUIENTE = ["avanza", "avanzar", "siguiente"]
 PALABRAS_MEDIA_ANTERIOR = ["rebobina", "rebobinar", "atras", "anterior"]
-# "para"/"parar" es ambiguo en español (también vale como preposición
-# "para ti" o como "detener" en cualquier otro contexto) — se incluye
-# porque se pidió explícitamente, es la entrada de todo este bloque con
-# más riesgo real de falso positivo.
-PALABRAS_MEDIA_PLAY_PAUSA = ["play", "reproduce", "reproducir", "pausa", "pausar", "para", "parar", "stop"]
+# FIX de un bug real (2026-07-21): "para" suelto como preposición
+# ("un consejo para el examen", "cuánto para hoy"...) es demasiado común
+# en español normal para usarse como disparador — se detectaba como
+# comando de pausa antes de llegar a Claude/al dominio correspondiente
+# (ESTUDIOS lo puso en evidencia, pero afectaba a cualquier frase con
+# "para"). Antes se incluía a propósito pese al riesgo conocido; el
+# riesgo de falso positivo resultó mayor que la utilidad real, así que
+# se quita — solo quedan disparadores de pausa inequívocos.
+PALABRAS_MEDIA_PLAY_PAUSA = ["play", "reproduce", "reproducir", "pausa", "pausar", "parar", "stop"]
 
 
 def _detectar_comando_multimedia(pregunta):
@@ -452,20 +767,114 @@ def _detectar_comando_ventana(pregunta):
     return None
 
 
-_APPLESCRIPT_MAXIMIZAR = """
-tell application "System Events"
-    set frontApp to first application process whose frontmost is true
-    set value of attribute "AXFullScreen" of window 1 of frontApp to true
-end tell
-"""
-_APPLESCRIPT_MINIMIZAR = 'tell application "System Events" to keystroke "m" using command down'
+# FIX de un bug real (2026-07-19, revisión sistemática): "maximiza"/
+# "minimiza" devolvían éxito (exit=0) sin que la ventana cambiase de
+# verdad en varias apps — comprobado con AXFullScreen/AXMinimized
+# después del intento, no solo con el exit code (mismo principio que
+# abrir/cerrar). Con Kodi en concreto, NINGÚN método por Accesibilidad
+# (cmd+m, fijar AXMinimized directamente, ni pulsar el botón de
+# minimizar) funciona: su ventana está renderizada con SDL/OpenGL, no
+# tiene controles de título nativos — `get every button of window 1`
+# devuelve una lista vacía. Es una limitación real de esa app, no
+# arreglable desde aquí; se reporta con un mensaje honesto en vez de
+# fingir éxito. Calculator, por su parte, no soporta pantalla completa
+# porque su ventana tiene tamaño fijo — comportamiento normal de
+# macOS, no un fallo.
+
+
+def _atributo_ventana(nombre_proceso, atributo):
+    resultado = _ejecutar_comando_sistema(
+        ["osascript", "-e",
+         f'tell application "System Events" to return value of attribute "{atributo}" '
+         f'of window 1 of process "{nombre_proceso}"'],
+    )
+    return resultado.returncode == 0 and resultado.stdout.strip() == "true"
+
+
+def _esperar_atributo_ventana(nombre_proceso, atributo, intentos=4, espera=0.3):
+    """Comprueba `_atributo_ventana` reintentando con una pequeña espera
+    entre intentos. FIX de un bug real de mi propia primera versión
+    (2026-07-19, revisión sistemática): la transición a pantalla
+    completa tiene animación — comprobar el atributo justo después de
+    fijarlo, sin esperar nada, daba un falso "No he podido" en Safari
+    aunque el cambio SÍ se completaba un segundo después (confirmado
+    comparando la verificación inmediata, que daba false, con una
+    comprobación posterior manual, que daba true)."""
+    for _ in range(intentos):
+        if _atributo_ventana(nombre_proceso, atributo):
+            return True
+        time.sleep(espera)
+    return False
+
+
+def _maximizar_proceso(nombre_proceso):
+    """Fija AXFullScreen a true en la ventana 1 de `nombre_proceso` y
+    verifica (con reintentos, ver _esperar_atributo_ventana — la
+    transición a pantalla completa tarda por la animación) que de
+    verdad ha entrado en pantalla completa."""
+    _ejecutar_comando_sistema(
+        ["osascript", "-e",
+         f'tell application "System Events" to set value of attribute "AXFullScreen" '
+         f'of window 1 of process "{nombre_proceso}" to true'],
+    )
+    return _esperar_atributo_ventana(nombre_proceso, "AXFullScreen")
+
+
+def _minimizar_proceso(nombre_proceso):
+    """Escala hasta confirmar con AXMinimized (con reintentos, ver
+    _esperar_atributo_ventana) que la ventana ha desaparecido de
+    verdad: 1) cmd+m (funciona en la mayoría de apps nativas — Safari,
+    Notes, Calculator, confirmado en pruebas reales), 2) fijar el
+    atributo AXMinimized directamente como alternativa para apps que no
+    responden al atajo de teclado. Si ninguna de las dos funciona
+    (confirmado con Kodi: su ventana SDL/OpenGL no tiene controles de
+    título nativos), no hay más vías por AppleScript."""
+    _ejecutar_comando_sistema(
+        ["osascript", "-e", 'tell application "System Events" to keystroke "m" using command down'],
+    )
+    if _esperar_atributo_ventana(nombre_proceso, "AXMinimized"):
+        return True
+
+    _ejecutar_comando_sistema(
+        ["osascript", "-e",
+         f'tell application "System Events" to set value of attribute "AXMinimized" '
+         f'of window 1 of process "{nombre_proceso}" to true'],
+    )
+    return _esperar_atributo_ventana(nombre_proceso, "AXMinimized")
+
+
+def _tiene_ventana(nombre_proceso, intentos=6, espera=0.4):
+    """Espera activamente a que `nombre_proceso` tenga al menos una
+    ventana antes de intentar nada — FIX de un bug real (Apple TV/TV.app,
+    2026-07-19, revisión sistemática): justo después de `activate` su
+    ventana tarda más en aparecer que en apps normales (con solo ~2s de
+    espera, `window 1` todavía no existía — confirmado que con ~4s sí);
+    sin esta espera, minimizar/maximizar fallaba por una condición de
+    carrera, no por una limitación real de la app."""
+    for _ in range(intentos):
+        resultado = _ejecutar_comando_sistema(
+            ["osascript", "-e", f'tell application "System Events" to count windows of process "{nombre_proceso}"'],
+        )
+        if resultado.returncode == 0 and resultado.stdout.strip() not in ("", "0"):
+            return True
+        time.sleep(espera)
+    return False
 
 
 def _ejecutar_comando_ventana(comando):
-    script = _APPLESCRIPT_MAXIMIZAR if comando == "maximizar" else _APPLESCRIPT_MINIMIZAR
-    resultado = _ejecutar_comando_sistema(["osascript", "-e", script])
-    mensaje = "Maximizando." if comando == "maximizar" else "Minimizando."
-    return resultado.returncode == 0, mensaje
+    nombre_proceso = _app_frontal()
+    if nombre_proceso is None:
+        return False, "No he podido identificar la ventana activa."
+    if not _tiene_ventana(nombre_proceso):
+        return False, "No he podido identificar la ventana activa."
+
+    if comando == "maximizar":
+        exito = _maximizar_proceso(nombre_proceso)
+        mensaje = "Maximizando." if exito else "No he podido poner esa ventana en pantalla completa."
+    else:
+        exito = _minimizar_proceso(nombre_proceso)
+        mensaje = "Minimizando." if exito else "No he podido minimizar esa ventana."
+    return exito, mensaje
 
 
 # Key codes estándar de teclado Apple (no son teclas de medios como las
@@ -710,14 +1119,22 @@ def _contexto_liquidacion():
         try:
             resultado_cuadre = cuadre_diario.calcular_cuadre_diario()
             if resultado_cuadre.get("ejecutado"):
+                # "resultado del día", NUNCA "efectivo": es una diferencia
+                # contable ventas-pagos que pasa al saldo acreedor/deudor,
+                # no dinero físico que el vendedor tenga en su poder — si
+                # el modelo lo repite hablando con el usuario, no debe
+                # sonar a caja física. Fecha explícita (no "de ayer": con
+                # el arrastre por festivos/huecos puede ser un día bastante
+                # anterior — ver cuadre_diario.ticket_mas_reciente()).
                 linea += (
-                    f" | CUADRE DE AYER ({resultado_cuadre['fecha']}): efectivo "
-                    f"{resultado_cuadre['efectivo']:.2f}€ (origen: {resultado_cuadre['origen']})"
+                    f" | CUADRE DEL ÚLTIMO DÍA TRABAJADO ({resultado_cuadre['fecha']}): "
+                    f"resultado del día (diferencia ventas-pagos, no efectivo/caja) "
+                    f"{resultado_cuadre['resultado_dia']:.2f}€ (origen: {resultado_cuadre['origen']})"
                 )
             else:
-                linea += f" | CUADRE DE AYER: {resultado_cuadre.get('mensaje')}"
+                linea += f" | CUADRE DEL ÚLTIMO DÍA TRABAJADO: {resultado_cuadre.get('mensaje')}"
         except Exception as e:
-            linea += f" | CUADRE DE AYER: no disponible ({e})"
+            linea += f" | CUADRE DEL ÚLTIMO DÍA TRABAJADO: no disponible ({e})"
     return linea
 
 
@@ -1127,6 +1544,62 @@ def _contexto_agenda():
     return f"AGENDA: {len(eventos_hoy)} evento(s) hoy, {len(recordatorios)} recordatorio(s) pendientes."
 
 
+def _contexto_estudios():
+    """Seguimiento del Curso de Acceso UNED +45 años (ver
+    agentes/ESTUDIOS.md) — progreso real leído de datos/estudios/
+    progreso.json, nunca inventado ni estimado por el modelo (misma
+    regla que el resto del proyecto: los datos reales los pone Python,
+    la IA solo los interpreta)."""
+    datos = _cargar_json(PROGRESO_ESTUDIOS_PATH)
+    if not datos:
+        return "ESTUDIOS: sin datos de progreso todavía."
+    lineas = [
+        f"ESTUDIOS — {datos.get('curso')} (curso académico {datos.get('curso_academico')}, "
+        f"actualizado {datos.get('actualizado')}):"
+    ]
+    for asignatura in datos.get("asignaturas") or []:
+        linea = f"- {asignatura['nombre']}: {asignatura['estado']}"
+        if asignatura.get("notas"):
+            linea += f" — {asignatura['notas']}"
+        lineas.append(linea)
+    sesiones = datos.get("sesiones_examen") or {}
+    if sesiones:
+        lineas.append(
+            "Sesiones de examen: " + "; ".join(f"{k}: {v}" for k, v in sesiones.items())
+        )
+
+    plan = datos.get("plan_estudio") or {}
+    if plan:
+        lineas.append(f"OBJETIVO: {plan.get('objetivo')}")
+        id_fase_actual = plan.get("fase_actual")
+        fase = next(
+            (f for f in (plan.get("fases") or []) if f.get("id") == id_fase_actual), None
+        )
+        if fase:
+            lineas.append(
+                f"FASE ACTUAL ({fase.get('id')} — {fase.get('nombre')}, {fase.get('periodo')}): "
+                f"{fase.get('objetivo', '')}"
+                + (f" Horas/semana: {fase['horas_semana']}." if fase.get("horas_semana") else "")
+            )
+            if fase.get("actividades"):
+                lineas.append("Actividades de esta fase: " + "; ".join(fase["actividades"]))
+
+        rutina = plan.get("rutina_semanal_tipo") or {}
+        dias = ["lunes", "martes", "miercoles", "jueves", "viernes", "sabado", "domingo"]
+        hoy_nombre = dias[datetime.now().weekday()]
+        tarea_hoy = rutina.get(hoy_nombre)
+        if tarea_hoy:
+            aviso_rutina = f" ({rutina['nota']})" if rutina.get("nota") else ""
+            lineas.append(
+                f"TAREA DE HOY según la rutina semanal tipo{aviso_rutina} ({hoy_nombre}): {tarea_hoy}"
+            )
+
+        if plan.get("consejos_clave"):
+            lineas.append("Consejos clave del plan: " + " | ".join(plan["consejos_clave"]))
+
+    return "\n".join(lineas)
+
+
 def _contexto_lista_json(ruta, etiqueta, max_filas=15):
     """Helper genérico para los ficheros de "consultas" del portal que son
     simplemente una tabla exportada a JSON (lista de filas/diccionarios):
@@ -1293,6 +1766,10 @@ PALABRAS_CLAVE_CONTEXTO = {
         "finalizacion", "finaliza", "finalizar",
     ],
     "devoluciones_libros": ["devolucion", "devoluciones", "devolver", "devuelto", "devueltos"],
+    "estudios": [
+        "estudio", "estudios", "uned", "examen", "examenes", "asignatura",
+        "asignaturas", "acceso a la universidad", "entrevista personal",
+    ],
 }
 
 _CONSTRUCTORES_CONTEXTO = {
@@ -1310,6 +1787,7 @@ _CONSTRUCTORES_CONTEXTO = {
     "nomina": _contexto_nomina,
     "comunicaciones": _contexto_comunicaciones,
     "devoluciones_libros": _contexto_devoluciones_libros,
+    "estudios": _contexto_estudios,
 }
 
 # Categorías del "portal" en sentido estricto (excluye agenda, que es
@@ -1536,6 +2014,9 @@ en español.
 ## Contexto de dominio BUTLER (agenda y organización personal)
 {butler_md}
 
+## Contexto de dominio ESTUDIOS (Curso de Acceso UNED +45 años)
+{estudios_md}
+
 ---
 
 ## DATOS DE HOY (ya descargados/calculados en Python — interprétalos, \
@@ -1550,6 +2031,7 @@ def construir_system_prompt(pregunta):
         salud_md=_leer_md("SALUD"),
         ingeniero_md=_leer_md("INGENIERO"),
         butler_md=_leer_md("BUTLER"),
+        estudios_md=_leer_md("ESTUDIOS"),
         contexto_dia=contexto_del_dia(pregunta),
         gestiona_url=GESTIONA_BASE,
     )
@@ -1579,23 +2061,24 @@ def responder(pregunta, api_key=None):
     ejecución de código para filtrar resultados, lo que en la práctica
     duplicaba o triplicaba el tiempo de respuesta (41-62s vs ~22s) para
     preguntas sencillas como el tiempo."""
-    # DEBUG TEMPORAL (2026-07-18) — quitar en cuanto se identifique el
-    # texto real que llega desde el Atajo de Siri. Ver /tmp/debug_siri.log.
-    with open('/tmp/debug_siri.log', 'a') as f:
-        f.write(f"{datetime.now()}: TEXTO RECIBIDO = '{pregunta}'\n")
-
     nombre_app = _detectar_comando_abrir_app(pregunta)
     if nombre_app is not None:
-        exito, nombre_usado = _abrir_aplicacion_mac(nombre_app)
+        exito, nombre_usado, ya_abierta = _abrir_aplicacion_mac(nombre_app)
         if exito:
+            if ya_abierta:
+                return f"{nombre_usado} ya estaba abierto, lo traigo al frente."
             return f"Abriendo {nombre_usado}."
         return f"No he encontrado ninguna aplicación llamada {nombre_app}."
 
     nombre_app_cerrar = _detectar_comando_cerrar_app(pregunta)
     if nombre_app_cerrar is not None:
-        exito, nombre_usado = _cerrar_aplicacion_mac(nombre_app_cerrar)
-        if exito:
+        estado, nombre_usado = _cerrar_aplicacion_mac(nombre_app_cerrar)
+        if estado == "cerrada":
             return f"Cerrando {nombre_usado}."
+        if estado == "ya_cerrada":
+            return f"{nombre_usado} ya estaba cerrado."
+        if estado == "atascada":
+            return f"No he podido cerrar {nombre_usado}."
         return f"No he encontrado ninguna aplicación llamada {nombre_app_cerrar}."
 
     comando_media = _detectar_comando_multimedia(pregunta)
@@ -1615,8 +2098,8 @@ def responder(pregunta, api_key=None):
 
     comando_ventana = _detectar_comando_ventana(pregunta)
     if comando_ventana is not None:
-        exito, mensaje = _ejecutar_comando_ventana(comando_ventana)
-        return mensaje if exito else "No he podido mover la ventana."
+        _, mensaje = _ejecutar_comando_ventana(comando_ventana)
+        return mensaje
 
     comando_volumen = _detectar_comando_volumen(pregunta)
     if comando_volumen is not None:
@@ -1647,7 +2130,18 @@ def _timeout_handler(signum, frame):
 
 
 if __name__ == "__main__":
+    # Logging de depuración (2026-07-19): el texto que llega por voz vía
+    # el Atajo de Siri real puede traer caracteres invisibles/sueltos que
+    # print() normal no revela (p.ej. un corchete de cierre encontrado en
+    # pruebas reales con "Kodi" -> "Cody]"). repr() sobre sys.argv ANTES
+    # de tocar nada (ni .strip()) para poder comparar el texto exacto
+    # recibido en varias pruebas por voz distintas.
+    _log_debug(f"sys.argv completo (crudo): {sys.argv!r}")
+    if len(sys.argv) > 1:
+        _log_debug(f"sys.argv[1] crudo (antes de .strip()): {sys.argv[1]!r}")
+
     texto = sys.argv[1].strip() if len(sys.argv) > 1 else ""
+    _log_debug(f"texto tras .strip(): {texto!r}")
 
     if not texto:
         print("ERROR: no se recibió ningún texto. Prueba de nuevo.", flush=True)

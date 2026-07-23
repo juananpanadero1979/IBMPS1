@@ -57,6 +57,10 @@ echo "--- cuadre_diario.py ---"
 "$PYTHON3" cuadre_diario.py
 echo "cuadre_diario.py salida: $?"
 
+echo "--- novedades_tech.py ---"
+"$PYTHON3" novedades_tech.py
+echo "novedades_tech.py salida: $?"
+
 echo "--- informe_manana.py ---"
 "$PYTHON3" informe_manana.py
 echo "informe_manana.py salida: $?"

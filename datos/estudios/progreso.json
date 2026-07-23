@@ -1,0 +1,102 @@
+{
+  "curso": "Curso de Acceso a la Universidad para mayores de 45 años - UNED (a distancia)",
+  "curso_academico": "2026/2027",
+  "fecha_matricula": "2026-07-21",
+  "asignaturas": [
+    {
+      "nombre": "Comentario de texto o desarrollo de un tema general de actualidad",
+      "codigo": "00001011",
+      "estado": "Fase 1 - calentamiento (jul-sep 2026)",
+      "notas": ""
+    },
+    {
+      "nombre": "Lengua Castellana",
+      "codigo": "00001028",
+      "estado": "Fase 1 - calentamiento (jul-sep 2026)",
+      "notas": "Candidata a adelantar en la convocatoria de evaluación continua de febrero 2027"
+    },
+    {
+      "nombre": "Entrevista Personal",
+      "codigo": "00001301",
+      "estado": "pendiente (solo tras aprobar las dos anteriores)",
+      "notas": ""
+    }
+  ],
+  "sesiones_examen": {
+    "evaluacion_continua": "enero/febrero 2027 (fecha exacta por confirmar en el calendario oficial)",
+    "ordinaria": "mayo/junio 2027 (fecha exacta por confirmar)",
+    "extraordinaria_septiembre": "septiembre 2027 (fecha exacta por confirmar)"
+  },
+  "plan_estudio": {
+    "origen": "Plan propuesto por Claude (claude.ai) el 2026-07-21, revisado y confirmado por Juan Antonio",
+    "objetivo": "Aprobar en la convocatoria de mayo/junio 2027, con opción de adelantar Lengua Castellana en febrero por evaluación continua.",
+    "fase_actual": "FASE 1",
+    "fases": [
+      {
+        "id": "FASE 1",
+        "nombre": "Calentamiento (sin tutorías aún)",
+        "periodo": "Julio-Septiembre 2026",
+        "horas_semana": "3-4",
+        "objetivo": "Repasar las bases antes de que empiece el curso oficial en octubre, para no arrancar de cero.",
+        "actividades": [
+          "Lengua Castellana: repaso de ortografía (acentuación, uso de b/v, h, g/j) y categorías gramaticales (sustantivo, adjetivo, verbo...)",
+          "Comentario de Texto: leer un artículo de opinión o editorial a la semana (El País, El Mundo) y practicar identificar tema, tesis y estructura",
+          "Tests de acceso25.es para autoevaluarse sin agobio"
+        ]
+      },
+      {
+        "id": "FASE 2",
+        "nombre": "Curso oficial + tutorías",
+        "periodo": "Octubre 2026 - Enero 2027",
+        "horas_semana": "5-6",
+        "objetivo": "Seguir el temario del curso virtual UNED al día, semana a semana, sin acumular. Meta de diciembre: 100% del temario cubierto al menos una vez.",
+        "actividades": [
+          "Lunes/Miércoles: Lengua Castellana (gramática, sintaxis, morfología, semántica) siguiendo el temario oficial",
+          "Martes/Jueves: Comentario de Texto (estructura del comentario, tipos de texto, figuras retóricas)",
+          "Fin de semana: repaso de la semana + 1 examen de convocatoria anterior de cada asignatura",
+          "Aprovechar las tutorías/clases virtuales del curso"
+        ]
+      },
+      {
+        "id": "FASE 3",
+        "nombre": "Recta final convocatoria de febrero",
+        "periodo": "Enero-Febrero 2027",
+        "objetivo": "Últimas 2-3 semanas antes del examen de febrero: solo repaso activo + exámenes de años anteriores cronometrados (simulacro real de tiempo). Si se aprueba Lengua Castellana en febrero, queda un peso menos para mayo.",
+        "condicion": "Solo si se decide presentar a la convocatoria de evaluación continua de febrero"
+      },
+      {
+        "id": "FASE 4",
+        "nombre": "Recta final convocatoria de mayo",
+        "periodo": "Marzo-Mayo 2027",
+        "horas_semana": "6-8, subiendo a 10+ en las últimas 3 semanas",
+        "objetivo": "Consolidar y hacer muchos simulacros.",
+        "actividades": [
+          "Un examen completo cronometrado por semana (alternando Lengua/Comentario)",
+          "Corregir cada simulacro identificando patrones de fallo (¿siempre falla acentuación? ¿confunde tipos de texto?)",
+          "Repasar solo lo que falla, no todo el temario otra vez"
+        ]
+      },
+      {
+        "id": "FASE 5",
+        "nombre": "Examen",
+        "periodo": "Mayo/Junio 2027 (ordinaria); septiembre 2027 si hace falta recuperar"
+      }
+    ],
+    "rutina_semanal_tipo": {
+      "nota": "Aplica en fases 2-4, ajustable",
+      "lunes": "Lengua Castellana — teoría/temario",
+      "martes": "Comentario de Texto — práctica",
+      "miercoles": "Lengua Castellana — ejercicios",
+      "jueves": "Comentario de Texto — teoría",
+      "viernes": "Descanso o repaso ligero",
+      "sabado": "Examen de convocatoria anterior (1 asignatura)",
+      "domingo": "Corrección + repaso de fallos"
+    },
+    "consejos_clave": [
+      "No dejar Comentario de Texto para el final — es la parte que más cuesta calibrar sin feedback, empezar pronto",
+      "La ortografía y la acentuación son puntos fáciles que mucha gente pierde por no repasar lo básico",
+      "Hacer exámenes cronometrados sube más la nota que solo leer teoría"
+    ]
+  },
+  "actualizado": "2026-07-21"
+}

@@ -414,11 +414,17 @@ def extraer_todas_tablas(page, selector="table"):
 # - Desde el 13/07/2026: tipo 1, trabaja lunes a viernes.
 CAMBIO_TURNO_LIQUIDACION = datetime(2026, 7, 13).date()
 
+# Festivos (nacionales/Madrid/Getafe) en los que NO hay jornada aunque
+# el día de la semana sí tocara turno. Mantenida a mano (decisión
+# 2026-07-20: sin librería de calendario automático) — Juan Antonio
+# avisa con antelación de cada festivo próximo y se añade aquí.
+# Formato: date(AAAA, MM, DD).
+FESTIVOS_LIQUIDACION = set()
+
 
 def _hay_liquidacion_ese_dia(fecha):
-    """Decide si toca ejecutar la descarga de liquidación diaria para
-    `fecha` (la fecha consultada, no la de hoy), según el turno vigente
-    ese día:
+    """Decide si `fecha` es un día laborable en el que toca ejecutar la
+    descarga de liquidación diaria, según el turno vigente ese día:
 
     - Tipo 4 (antes del cambio de turno, miércoles a domingo): se
       ejecuta TODOS los días de la semana. Lunes y martes no son
@@ -426,10 +432,61 @@ def _hay_liquidacion_ese_dia(fecha):
       libros o saldo acreedor pendiente (es normal que salga 0,00€).
     - Tipo 1 (desde el cambio de turno, lunes a viernes): se ejecuta de
       lunes a viernes; sábado y domingo se omite directamente, no hay
-      jornada de ningún tipo esos días."""
+      jornada de ningún tipo esos días.
+
+    En ambos turnos, un festivo en FESTIVOS_LIQUIDACION anula el día
+    aunque le tocara turno según el calendario semanal."""
+    if fecha in FESTIVOS_LIQUIDACION:
+        return False
     if fecha < CAMBIO_TURNO_LIQUIDACION:
         return True
     return fecha.weekday() not in (5, 6)  # 5 = sábado, 6 = domingo
+
+
+def _ultima_fecha_liquidada(antes_de, limite_dias=21):
+    """Busca hacia atrás desde `antes_de` (sin incluirla) la fecha más
+    reciente con un liquidacion_diaria_YYYYMMDD.json ya ejecutado de
+    verdad (ejecutado=True), hasta `limite_dias` atrás (para no escanear
+    indefinidamente si nunca se ha ejecutado, p.ej. la primera vez que
+    corre el script). Devuelve None si no se encuentra ninguna."""
+    for i in range(1, limite_dias + 1):
+        fecha = antes_de - timedelta(days=i)
+        ruta = LIQUIDACIONES_PATH / f"liquidacion_diaria_{fecha.strftime('%Y%m%d')}.json"
+        if not ruta.exists():
+            continue
+        try:
+            with open(ruta) as f:
+                datos = json.load(f)
+        except (json.JSONDecodeError, OSError):
+            continue
+        if datos.get("ejecutado", True):
+            return fecha
+    return None
+
+
+def _hay_dia_laborable_pendiente(hoy_dt):
+    """True si, entre la última fecha con liquidación realmente
+    ejecutada y hoy (sin incluir hoy), quedó algún día que SÍ era
+    laborable (según _hay_liquidacion_ese_dia, que ya descuenta
+    festivos) sin consultar.
+
+    FIX de un caso real reportado el 2026-07-20 (no cubierto por mirar
+    solo "hoy o ayer"): si un día laborable es festivo (p.ej. un
+    viernes), el arrastre hasta el siguiente día laborable debe cubrir
+    TODOS los días intermedios (festivo + fin de semana), no solo el
+    inmediatamente anterior. Si no hay ninguna fecha previa ejecutada
+    dentro del límite de búsqueda (primera vez, o gap demasiado largo),
+    no hay nada que arrastrar y se devuelve False — la decisión de
+    consultar hoy recae entonces solo en si hoy mismo es laborable."""
+    ultima = _ultima_fecha_liquidada(hoy_dt)
+    if ultima is None:
+        return False
+    fecha = ultima + timedelta(days=1)
+    while fecha < hoy_dt:
+        if _hay_liquidacion_ese_dia(fecha):
+            return True
+        fecha += timedelta(days=1)
+    return False
 
 
 def _importe_a_float(texto):
@@ -463,11 +520,24 @@ def descargar_liquidacion_diaria(page):
     — solo se pulsa "Enviar" para forzar una consulta fresca del estado
     actual.
 
-    Antes de nada comprueba con _hay_liquidacion_ese_dia() si AYER tenía
-    jornada según el turno vigente (se usa ayer, el último día laborable
-    completo, como referencia para decidir si merece la pena consultar);
-    si no la tenía (solo posible en el turno de lunes a viernes, en
-    sábado o domingo) se omite la consulta al portal por completo.
+    Antes de nada decide si hoy toca consultar: SÍ si hoy es laborable
+    según _hay_liquidacion_ese_dia() (turno vigente, festivos excluidos
+    vía FESTIVOS_LIQUIDACION), O si _hay_dia_laborable_pendiente()
+    encuentra algún día laborable sin liquidar entre la última fecha
+    realmente ejecutada y hoy (arrastre). Solo se omite si NINGUNA de
+    las dos condiciones se cumple.
+
+    FIX de dos bugs reales seguidos:
+    1. (2026-07-20) Comprobar solo "ayer" hacía que TODOS los lunes del
+       turno de lunes a viernes se omitieran, porque el domingo anterior
+       nunca es laborable — aunque el lunes en sí SÍ lo sea. Primer
+       arreglo: comprobar "hoy o ayer".
+    2. (2026-07-20, mismo día) "Hoy o ayer" no cubre un festivo entre
+       medias: si un viernes es festivo, el lunes siguiente debe
+       arrastrar jueves+viernes+sábado+domingo, no solo mirar el domingo
+       anterior. _hay_dia_laborable_pendiente() camina hacia atrás desde
+       la última liquidación realmente ejecutada (no solo "ayer") para
+       cubrir cualquier hueco, festivos incluidos.
 
     El botón "Exportar a PDF" del propio portal (id btExportar) no sirve:
     inspeccionando InformeLiquidacionDiaria.js se confirmó que su
@@ -477,11 +547,10 @@ def descargar_liquidacion_diaria(page):
     descargar_nominas()), no pulsando ese botón."""
     hoy_dt = datetime.now().date()
     hoy = datetime.now().strftime("%Y%m%d")
-    fecha_ayer = hoy_dt - timedelta(days=1)
     LIQUIDACIONES_PATH.mkdir(parents=True, exist_ok=True)
     destino = LIQUIDACIONES_PATH / f"liquidacion_diaria_{hoy}.json"
 
-    if not _hay_liquidacion_ese_dia(fecha_ayer):
+    if not (_hay_liquidacion_ese_dia(hoy_dt) or _hay_dia_laborable_pendiente(hoy_dt)):
         datos = {
             "fecha_consulta": hoy_dt.strftime("%d/%m/%Y"),
             "ejecutado": False,

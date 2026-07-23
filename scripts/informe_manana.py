@@ -35,6 +35,7 @@ from ocr_comunicaciones import COMUNICACIONES_PATH
 from ocr_devolucion_libros import DEVOLUCION_LIBROS_PATH
 
 INFORMES_PATH = Path(__file__).resolve().parent.parent / "informes"
+NOVEDADES_TECH_PATH = Path(__file__).resolve().parent.parent / "datos" / "novedades_tech"
 
 COLOR_CABECERA = colors.HexColor("#1a3c34")
 COLOR_FILA_ALTERNA = colors.HexColor("#f2f5f4")
@@ -633,37 +634,106 @@ def _lista_agenda(datos_agenda, estilos):
 
 
 def _seccion_cuadre_diario(hoy_date, estilos):
-    """Cuadre del día anterior: si el ticket trae resumen.resultado se usa
-    directamente como EFECTIVO (ya incluye premios de cupones y de rasca
-    dentro de "PAGOS"); si no, se calcula con la fórmula de respaldo
-    (ventas - devoluciones - premios - tarjeta, sin sumar pagos_rasca
-    aparte, para no contarlo dos veces). Ver cuadre_diario.py."""
+    """Cuadre del último día trabajado: si el ticket trae resumen.resultado
+    se usa directamente como RESULTADO DEL DÍA (ya incluye premios de
+    cupones y de rasca dentro de "PAGOS"); si no, se calcula con la
+    fórmula de respaldo (ventas - devoluciones - premios - tarjeta, sin
+    sumar pagos_rasca aparte, para no contarlo dos veces). Ver
+    cuadre_diario.py.
+
+    IMPORTANTE — terminología corregida el 2026-07-20: este número NO es
+    efectivo/caja física que el vendedor tenga en su poder, es una
+    diferencia CONTABLE entre ventas y pagos que pasa al saldo
+    acreedor/deudor de la liquidación periódica (antes se llamaba
+    "EFECTIVO DEL DÍA", nombre engañoso — ver cuadre_diario.py).
+
+    Sin fecha fija "ayer" — se llama a calcular_cuadre_diario() sin
+    argumento para que use el ÚLTIMO ticket ya procesado disponible (ver
+    ticket_mas_reciente() en cuadre_diario.py). FIX de un bug real
+    (2026-07-20): con "ayer" fijo, el cuadre de cualquier lunes fallaba
+    con "no hay ticket procesado para el domingo" aunque el ticket del
+    viernes (último día trabajado real) sí estuviera disponible.
+
+    Al no ser ya siempre "ayer" (puede arrastrar varios días atrás por
+    festivos o huecos), la fecha del ticket usado se muestra siempre en
+    el informe — antes no hacía falta decirla porque era implícita."""
     flowables = [Paragraph("CUADRE DIARIO", estilos["seccion"])]
-    ayer_dt = datetime.combine(hoy_date, datetime.min.time()) - timedelta(days=1)
-    resultado = cuadre_diario.calcular_cuadre_diario(ayer_dt)
+    resultado = cuadre_diario.calcular_cuadre_diario()
 
     if not resultado.get("ejecutado", True):
         flowables.append(Paragraph(resultado["mensaje"], estilos["normal"]))
         return flowables
 
     flowables.append(Paragraph(
-        f"EFECTIVO DEL DÍA: {resultado['efectivo']:.2f}€ (origen: {resultado['origen']})",
+        f"Último día trabajado: {resultado['fecha']}", estilos["bullet"],
+    ))
+    flowables.append(Paragraph(
+        f"RESULTADO DEL DÍA: {resultado['resultado_dia']:.2f}€ (origen: {resultado['origen']})",
         estilos["bullet"],
     ))
 
     dif = resultado["diferencia"]
     if dif is None:
         flowables.append(Paragraph(
-            "ℹ️ Sin resumen.resultado en el ticket — EFECTIVO calculado con la fórmula "
-            "de respaldo, no verificado contra un segundo valor.",
+            "ℹ️ Sin resumen.resultado en el ticket — RESULTADO DEL DÍA calculado con la "
+            "fórmula de respaldo, no verificado contra un segundo valor.",
             estilos["normal"],
         ))
     elif abs(dif) < 0.01:
-        flowables.append(Paragraph("✅ CUADRE CORRECTO: 0,00€ diferencia", estilos["normal"]))
+        flowables.append(Paragraph(
+            "✅ Cálculo del ticket verificado: coincide con resumen.resultado", estilos["normal"],
+        ))
     else:
         signo = "+" if dif > 0 else ""
         flowables.append(Paragraph(
-            f"⚠️ DESCUADRE: {signo}{dif:.2f}€ diferencia", estilos["normal"],
+            f"⚠️ Verificación del ticket: la fórmula no coincide con resumen.resultado "
+            f"({signo}{dif:.2f}€ de diferencia)", estilos["normal"],
+        ))
+    return flowables
+
+
+def _seccion_novedades_tech(hoy_date, estilos):
+    """Novedades del día en Claude Code, IA y las 12 categorías
+    personales (fitness, longevidad, péptidos, Seiko mods, IA,
+    videojuegos...) — generadas por scripts/novedades_tech.py, que
+    busca vía la API de Anthropic (web_search + conector MCP a
+    trends-mcp) y deduplica contra su propio histórico. Si el hallazgo
+    viene marcado como dudoso ("cautela": true), se antepone un aviso
+    explícito en vez de presentarlo como un hecho — mismo criterio de
+    verificación honesta ya aplicado al validar SkillSpector antes de
+    instalarlo."""
+    flowables = [Paragraph("📰 NOVEDADES DEL DÍA", estilos["seccion"])]
+    hoy = hoy_date.strftime("%Y%m%d")
+    ruta = NOVEDADES_TECH_PATH / f"novedades_{hoy}.json"
+
+    if not ruta.exists():
+        flowables.append(Paragraph("Sin novedades relevantes hoy.", estilos["normal"]))
+        return flowables
+
+    try:
+        with open(ruta) as f:
+            datos = json.load(f)
+    except (json.JSONDecodeError, OSError):
+        flowables.append(Paragraph("Sin novedades relevantes hoy.", estilos["normal"]))
+        return flowables
+
+    if not datos.get("ejecutado", True):
+        flowables.append(Paragraph(
+            f"ℹ️ {datos.get('mensaje', 'Búsqueda de novedades no ejecutada hoy.')}",
+            estilos["normal"],
+        ))
+        return flowables
+
+    items = datos.get("items") or []
+    if not items:
+        flowables.append(Paragraph("Sin novedades relevantes hoy.", estilos["normal"]))
+        return flowables
+
+    for item in items:
+        prefijo = "⚠️ VERIFICAR CON CAUTELA — " if item.get("cautela") else "• "
+        flowables.append(Paragraph(
+            f"{prefijo}[{item.get('categoria', '?')}] {item.get('resumen', '')}",
+            estilos["bullet"],
         ))
     return flowables
 
@@ -797,6 +867,7 @@ def generar_informe_pdf(datos, datos_agenda, hoy_date, destino):
     story.extend(_seccion_cuadre_diario(hoy_date, estilos))
     story.extend(_seccion_devoluciones_recientes(hoy_date, estilos))
     story.extend(_seccion_avisos_proximos(hoy_date, estilos))
+    story.extend(_seccion_novedades_tech(hoy_date, estilos))
 
     doc.build(story)
 
