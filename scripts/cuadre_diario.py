@@ -19,20 +19,37 @@ corrección de terminología aplicada el 2026-07-20 (antes se llamaba
   1. Si el ticket trae resumen.resultado (la página RESUMEN ACTIVIDAD
      DIARIA existe y se pudo leer), se usa ese valor directamente — ya
      es el cálculo completo del propio TPV, incluyendo dentro de
-     "PAGOS" tanto premios de cupones como premios de rasca. Sumar
-     pagos_rasca aparte (como se hizo en una versión anterior de este
-     script) contaba el rasca dos veces y por eso salía una diferencia
-     grande y falsa.
+     "PAGOS" tanto premios de cupones como premios de rasca.
   2. Si no existe (p.ej. 120626.pdf, que no tiene página RESUMEN en el
      PDF original — confirmado, no se reprocesa), se calcula con:
 
-         RESULTADO DEL DÍA = ventas.total - devoluciones.total
-                              - premios_pagados.total - pagos_tarjeta
+         RESULTADO DEL DÍA = ventas.total - premios_pagados.total
+                              - pagos_rasca.total
 
-     (sin sumar pagos_rasca, por el mismo motivo). En este caso no hay
-     un segundo valor con el que comparar, así que no se puede dar un
-     veredicto de verificación — se informa el RESULTADO DEL DÍA
-     calculado y se deja constancia de que no se pudo verificar.
+     FIX de un bug real (2026-07-23, ultrareview + diagnóstico manual
+     campo a campo sobre los 31 tickets de 2026): la fórmula anterior
+     (ventas - devoluciones - premios - tarjeta) estaba mal en dos
+     sentidos a la vez. Verificado contra los tickets ya procesados,
+     "resumen.resultado = ventas.total - premios_pagados.total -
+     pagos_rasca.total" cuadra exacto (diferencia 0,00€) en 26 de 31
+     casos (los 5 restantes tienen la propia página RESUMEN mal leída
+     por OCR, marcados con "ocr_revision_pendiente": true en su JSON).
+     Confirmado también que "resumen.pagos_total = premios_pagados.total
+     + pagos_rasca.total" siempre — es decir, pagos_rasca NO se
+     duplicaba al sumarlo (el comentario anterior de este docstring era
+     erróneo), sencillamente faltaba. devoluciones_total y pagos_tarjeta
+     NO entran en el RESULTADO DEL DÍA: no aparecen restados en ningún
+     punto de la página RESUMEN ACTIVIDAD DIARIA del TPV — devoluciones
+     afecta a la liquidación periódica de existencias, no al cuadre
+     diario, y pagos_tarjeta es un desglose informativo de qué parte de
+     los pagos fue con tarjeta, no un importe adicional. Ambos se siguen
+     mostrando en el desglose informativo del informe, pero fuera del
+     cálculo.
+
+     Si no hay resumen.resultado, no hay un segundo valor con el que
+     comparar, así que no se puede dar un veredicto de verificación —
+     se informa el RESULTADO DEL DÍA calculado y se deja constancia de
+     que no se pudo verificar.
 
 Todo el cálculo es Python puro (regla del proyecto: "los cálculos del
 cuadre ONCE se hacen SIEMPRE con Python, nunca con IA").
@@ -133,6 +150,8 @@ def calcular_cuadre_diario(fecha_dt=None):
             "mensaje": f"No hay ticket procesado para el {fecha_dt.strftime('%d/%m/%Y')}",
         }
 
+    ocr_revision_pendiente = bool(ticket.get("ocr_revision_pendiente"))
+
     ventas_total = ticket.get("ventas", {}).get("total") or 0.0
     devoluciones_total = ticket.get("devoluciones", {}).get("total") or 0.0
     premios_total = ticket.get("premios_pagados", {}).get("total") or 0.0
@@ -140,12 +159,12 @@ def calcular_cuadre_diario(fecha_dt=None):
     rasca_total = ticket.get("pagos_rasca", {}).get("total") or 0.0
     resultado_ticket = ticket.get("resumen", {}).get("resultado")
 
-    formula_calculada = round(ventas_total - devoluciones_total - premios_total - tarjeta, 2)
+    formula_calculada = round(ventas_total - premios_total - rasca_total, 2)
 
     if resultado_ticket is not None:
         resultado_dia = round(resultado_ticket, 2)
         origen = "resumen.resultado"
-        diferencia = 0.0
+        diferencia = round(formula_calculada - resultado_ticket, 2)
     else:
         resultado_dia = formula_calculada
         origen = "fórmula de respaldo (sin resumen.resultado en el ticket)"
@@ -164,6 +183,7 @@ def calcular_cuadre_diario(fecha_dt=None):
         "resultado_dia": resultado_dia,
         "origen": origen,
         "diferencia": diferencia,
+        "ocr_revision_pendiente": ocr_revision_pendiente,
     }
 
 
@@ -179,14 +199,22 @@ def formatear_resultado(resultado):
         f"RESULTADO DEL DÍA: {resultado['resultado_dia']:.2f}€  (origen: {resultado['origen']})"
     )
 
+    if resultado.get("ocr_revision_pendiente"):
+        lineas.append(
+            "🔶 Este ticket está marcado como ocr_revision_pendiente — la página RESUMEN "
+            "salió mal transcrita (OCR) y este RESULTADO DEL DÍA no es fiable hasta "
+            "reprocesarlo. No se verifica la fórmula contra un dato que ya se sabe corrupto."
+        )
+        return "\n".join(lineas)
+
     dif = resultado["diferencia"]
     if dif is None:
         lineas.append(
             f"ℹ️  Sin resumen.resultado en el ticket — RESULTADO DEL DÍA calculado con la "
-            f"fórmula de respaldo (ventas {resultado['ventas_total']:.2f} - devoluciones "
-            f"{resultado['devoluciones_total']:.2f} - premios {resultado['premios_total']:.2f} "
-            f"- tarjeta {resultado['tarjeta']:.2f} = {resultado['formula_calculada']:.2f}€), "
-            f"no se ha podido verificar contra un segundo valor."
+            f"fórmula de respaldo (ventas {resultado['ventas_total']:.2f} - premios "
+            f"{resultado['premios_total']:.2f} - rasca {resultado['rasca_total']:.2f} "
+            f"= {resultado['formula_calculada']:.2f}€), no se ha podido verificar contra "
+            f"un segundo valor."
         )
     elif abs(dif) < 0.01:
         lineas.append("✅ Cálculo del ticket verificado: coincide con resumen.resultado")
@@ -196,6 +224,11 @@ def formatear_resultado(resultado):
             f"⚠️  Verificación del ticket: la fórmula no coincide con resumen.resultado "
             f"({signo}{dif:.2f}€ de diferencia)"
         )
+
+    lineas.append(
+        f"ℹ️  Informativo (no entra en el RESULTADO DEL DÍA): devoluciones "
+        f"{resultado['devoluciones_total']:.2f}€, pagos con tarjeta {resultado['tarjeta']:.2f}€"
+    )
 
     return "\n".join(lineas)
 

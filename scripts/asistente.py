@@ -378,15 +378,6 @@ def _nombre_proceso_real(nombre_buscado):
     return _mejor_coincidencia_difflib(nombre_buscado, procesos)
 
 
-def _proceso_esta_corriendo(nombre_app):
-    """True si hay algún proceso vivo que corresponde a `nombre_app`
-    (ver _nombre_proceso_real — comparación flexible, no la igualdad
-    exacta de lista que hacía fallar el cierre de DIGI TV)."""
-    nombre_real = _nombre_proceso_real(nombre_app)
-    _log_debug(f"_proceso_esta_corriendo({nombre_app!r}) -> nombre_real={nombre_real!r}")
-    return nombre_real is not None
-
-
 def _proceso_vivo_exacto(nombre_proceso):
     """True si `nombre_proceso` — un nombre YA RESUELTO de forma exacta
     (ver _nombre_proceso_real) — sigue en la lista de procesos.

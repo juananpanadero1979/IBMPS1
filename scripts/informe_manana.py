@@ -672,6 +672,14 @@ def _seccion_cuadre_diario(hoy_date, estilos):
         estilos["bullet"],
     ))
 
+    if resultado.get("ocr_revision_pendiente"):
+        flowables.append(Paragraph(
+            "🔶 Ticket marcado como ocr_revision_pendiente — la página RESUMEN salió mal "
+            "transcrita (OCR) y este RESULTADO DEL DÍA no es fiable hasta reprocesarlo.",
+            estilos["normal"],
+        ))
+        return flowables
+
     dif = resultado["diferencia"]
     if dif is None:
         flowables.append(Paragraph(
@@ -689,6 +697,12 @@ def _seccion_cuadre_diario(hoy_date, estilos):
             f"⚠️ Verificación del ticket: la fórmula no coincide con resumen.resultado "
             f"({signo}{dif:.2f}€ de diferencia)", estilos["normal"],
         ))
+
+    flowables.append(Paragraph(
+        f"Informativo (no entra en el RESULTADO DEL DÍA): devoluciones "
+        f"{resultado['devoluciones_total']:.2f}€, pagos con tarjeta {resultado['tarjeta']:.2f}€",
+        estilos["bullet"],
+    ))
     return flowables
 
 
